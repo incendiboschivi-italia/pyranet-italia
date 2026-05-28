@@ -24,7 +24,7 @@
             letter-spacing: 1px;
         }
 
-        /* NUOVO PANNELLO AUTENTICAZIONE */
+        /* PANNELLO AUTENTICAZIONE */
         #pannello-auth {
             position: absolute;
             top: 20px;
@@ -37,7 +37,7 @@
             font-size: 14px;
             font-weight: bold;
             color: white;
-            background-color: #1a73e8; /* Blu predefinito */
+            background-color: #1a73e8; 
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -47,7 +47,7 @@
 
         #btn-auth:hover { opacity: 0.9; }
 
-        /* 1. PANNELLO MONITORAGGIO (Spostato a top: 75px per fare spazio al bottone Auth) */
+        /* PANNELLO MONITORAGGIO (SINISTRA) */
         #pannello-monitoraggio {
             position: absolute;
             top: 75px; 
@@ -90,7 +90,7 @@
             font-size: 12px;
         }
 
-        /* 2. PANNELLO INDICI DI RISCHIO */
+        /* PANNELLO INDICI DI RISCHIO (DESTRA) */
         #pannello-rischio {
             position: absolute;
             top: 80px; 
@@ -186,15 +186,14 @@
     <div id="mappa"></div>
 
     <script>
-        // --- LOGICA FIREBASE AUTH ---
-        // ATTENZIONE: SOSTITUISCI QUESTI VALORI CON QUELLI DEL TUO PROGETTO FIREBASE
+        // --- CONFIGURAZIONE REALE FIREBASE ---
         const firebaseConfig = {
-            apiKey: "INSERISCI_LA_TUA_API_KEY_FIREBASE",
-            authDomain: "INSERISCI_IL_TUO_AUTH_DOMAIN",
-            projectId: "INSERISCI_IL_TUO_PROJECT_ID",
-            storageBucket: "INSERISCI_IL_TUO_STORAGE_BUCKET",
-            messagingSenderId: "INSERISCI_IL_TUO_MESSAGING_SENDER_ID",
-            appId: "INSERISCI_IL_TUO_APP_ID"
+            apiKey: "AIzaSyCtl7kaMqa376Y_DoRESuQVW88M1VE9Jxc",
+            authDomain: "pyranet-italia.firebaseapp.com",
+            projectId: "pyranet-italia",
+            storageBucket: "pyranet-italia.firebasestorage.app",
+            messagingSenderId: "8840472059",
+            appId: "1:8840472059:web:b77090fa31f154d390575e"
         };
 
         // Inizializzazione Firebase
@@ -203,36 +202,33 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         const btnAuth = document.getElementById('btn-auth');
 
-        // Ascolta in tempo reale se l'utente è loggato o meno
+        // Monitoraggio sessione utente
         auth.onAuthStateChanged(user => {
             if (user) {
-                // UTENTE LOGGATO
                 const nomeUtente = user.displayName ? user.displayName.split(' ')[0] : 'Volontario';
                 btnAuth.innerHTML = `👤 ${nomeUtente} - Segnala (Esci)`;
-                btnAuth.style.backgroundColor = '#28a745'; // Diventa verde per indicare la sessione attiva
+                btnAuth.style.backgroundColor = '#28a745'; 
                 
                 btnAuth.onclick = () => {
-                    // Azione dinamica: per ora gestiamo il logout con un alert operativo
                     if(confirm("Vuoi inserire una nuova segnalazione?\n\n[ OK ] = Disconnettiti dal sistema (Esci)\n[ Annulla ] = Resta operativo sulla mappa")) {
                         auth.signOut();
                     }
                 };
             } else {
-                // UTENTE NON LOGGATO
                 btnAuth.innerHTML = '🔑 Accedi / Registrati';
-                btnAuth.style.backgroundColor = '#1a73e8'; // Torna blu
+                btnAuth.style.backgroundColor = '#1a73e8'; 
                 
                 btnAuth.onclick = () => {
-                    // Avvia il popup di accesso tramite Google
                     auth.signInWithPopup(provider).catch(error => {
                         console.error("Errore durante l'autenticazione:", error);
+                        alert("Errore di accesso. Verifica di aver abilitato il provider Google e inserito i domini autorizzati su Firebase.");
                     });
                 };
             }
         });
 
 
-        // --- LOGICA MAPPA LEAFLET E DATI (Invariata) ---
+        // --- LOGICA MAPPA LEAFLET E DATI ---
         var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
         var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
         var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
