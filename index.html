@@ -229,8 +229,10 @@
 
 
         // --- LOGICA MAPPA LEAFLET E DATI ---
-        var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
-        var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+        
+        // FIX 1: Link aggiornati per evitare l'errore SSL_PROTOCOL
+        var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png', { maxZoom: 19 });
+        var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
         var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
 
         var map = L.map('mappa', {
@@ -253,8 +255,10 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
+        // FIX 2: Proxy CORS per bypassare il blocco della NASA
         const apiKeyNASA = '6c7f29542d837e182b0bf7292cb52b99';
-        const urlNasa = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKeyNASA}/VIIRS_SNPP_NRT/ITA/1`;
+        const urlNasaOriginale = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKeyNASA}/VIIRS_SNPP_NRT/ITA/1`;
+        const urlNasa = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlNasaOriginale)}`;
 
         fetch(urlNasa)
             .then(response => response.text())
