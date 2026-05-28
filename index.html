@@ -9,54 +9,120 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         #mappa { height: 100vh; width: 100%; } 
+
+        /* Stile del Pannello Monitoraggio (Legenda) */
+        #pannello-monitoraggio {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000; /* Lo mantiene sopra la mappa */
+            background-color: rgba(25, 25, 25, 0.9); /* Sfondo scuro semitrasparente */
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+            min-width: 280px;
+        }
+
+        #pannello-monitoraggio h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .voce-legenda {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .pallino {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0; /* Evita che il pallino si rimpicciolisca */
+        }
+
+        /* Colori per i pallini della legenda */
+        .colore-nasa { background-color: #ff3300; box-shadow: 0 0 5px #ff3300; }
+        .colore-validata { background-color: #33cc33; box-shadow: 0 0 5px #33cc33; }
+        .colore-da-verificare { background-color: #ffcc00; box-shadow: 0 0 5px #ffcc00; }
+
+        /* Stile dei contatori dinamici */
+        .contatore {
+            margin-left: auto; /* Spinge il contatore tutto a destra */
+            background-color: #444;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
+    <div id="pannello-monitoraggio">
+        <h3>Monitoraggio Italia</h3>
+        
+        <div class="voce-legenda">
+            <div class="pallino colore-nasa"></div>
+            <span>Satellite (NASA)</span>
+            <span class="contatore" id="conta-nasa">0</span>
+        </div>
+        
+        <div class="voce-legenda">
+            <div class="pallino colore-validata"></div>
+            <span>Validata (Resp. Regionali)</span>
+            <span class="contatore" id="conta-validate">0</span>
+        </div>
+        
+        <div class="voce-legenda">
+            <div class="pallino colore-da-verificare"></div>
+            <span>Da Verificare (Cittadini)</span>
+            <span class="contatore" id="conta-da-verificare">0</span>
+        </div>
+    </div>
+
     <div id="mappa"></div>
 
     <script>
-        // 1. DEFINIZIONE DEI TRE LIVELLI DI BASE (FRONTEND)
-        
-        // Livello 1: Mappa Scura (CartoDB Dark Matter)
-        var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap contributors, © CARTO',
-            subdomains: 'abcd',
-            maxZoom: 20
-        });
+        // 1. Inizializzazione Mappa e Livelli
+        var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
+        var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+        var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
 
-        // Livello 2: Mappa Satellitare (Esri World Imagery)
-        var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        });
-
-        // Livello 3: Mappa Topografica (OpenTopoMap)
-        var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
-        });
-
-        // 2. INIZIALIZZAZIONE DELLA MAPPA
-        // Impostiamo la mappaScura come livello di partenza predefinito
         var map = L.map('mappa', {
             center: [41.8719, 12.5674],
             zoom: 6,
-            layers: [mappaScura] 
+            layers: [mappaScura],
+            zoomControl: false // Disattiviamo lo zoom base per spostarlo
         });
 
-        // 3. CREAZIONE DELL'INTERFACCIA DI SELEZIONE (CONTROLLO LIVELLI)
-        var livelliBase = {
-            "Modalità Scura": mappaScura,
-            "Vista Satellitare": mappaSatellitare,
-            "Mappa Topografica": mappaTopografica
-        };
+        // Spostiamo i bottoni dello zoom in basso a destra per non coprire il pannello
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.control.layers({ "Modalità Scura": mappaScura, "Vista Satellitare": mappaSatellitare, "Mappa Topografica": mappaTopografica }, null, { position: 'topright' }).addTo(map);
 
-        // Aggiunge il quadratino di scelta in alto a destra sulla mappa
-        L.control.layers(livelliBase, null, { position: 'topright', collapsed: false }).addTo(map);
+        // 2. Variabili per i contatori
+        let totaleNasa = 0;
+        let totaleValidate = 0;
+        let totaleDaVerificare = 0;
 
-        // 4. CARICAMENTO DATI REALI NASA FIRMS
+        // Funzione per aggiornare i testi nel pannello front-end
+        function aggiornaContatori() {
+            document.getElementById('conta-nasa').innerText = totaleNasa;
+            document.getElementById('conta-validate').innerText = totaleValidate;
+            document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
+        }
+
+        // 3. Caricamento dati NASA FIRMS (Rilevamenti Satellitari)
         const apiKey = '6c7f29542d837e182b0bf7292cb52b99';
         const urlNasa = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKey}/VIIRS_SNPP_NRT/ITA/1`;
 
@@ -64,27 +130,52 @@
             .then(response => response.text())
             .then(datiCsv => {
                 const righe = datiCsv.trim().split('\n');
-                
                 for (let i = 1; i < righe.length; i++) {
                     const colonne = righe[i].split(',');
                     const lat = parseFloat(colonne[1]);
                     const lon = parseFloat(colonne[2]);
                     
                     if (!isNaN(lat) && !isNaN(lon)) {
-                        // Creiamo cerchi arancioni/rossi accesi che risaltano sullo sfondo scuro
                         L.circle([lat, lon], {
-                            color: '#ff3300',     // Bordo rosso vivo
-                            fillColor: '#ffcc00', // Riempimento arancio/giallo per simulare il fuoco
-                            fillOpacity: 0.8,
-                            radius: 1000          // Raggio ridotto a 1km per maggiore precisione visiva
-                        }).addTo(map)
-                        .bindPopup(`<strong>Anomalia Termica</strong><br>Lat: ${lat}<br>Lon: ${lon}<br><span style="color:gray; font-size:11px;">Fonte: NASA FIRMS</span>`);
+                            color: '#ff3300', fillColor: '#ff3300', fillOpacity: 0.8, radius: 1000
+                        }).addTo(map).bindPopup(`<strong>Rilevamento Satellite</strong><br>Fonte: NASA FIRMS`);
+                        
+                        totaleNasa++; // Aumenta il contatore rosso
                     }
                 }
+                aggiornaContatori(); // Aggiorna il pannello quando i dati NASA sono pronti
             })
-            .catch(errore => {
-                console.error("Errore nel caricamento dei dati NASA:", errore);
-            });
+            .catch(errore => console.error("Errore NASA:", errore));
+
+        // 4. Simulazione Segnalazioni Manuali (In futuro proverranno da un database)
+        const segnalazioniSimulate = [
+            { lat: 43.7695, lon: 11.2558, tipo: 'validata', nota: 'Pattuglia sul posto' }, // Firenze
+            { lat: 41.9028, lon: 12.4964, tipo: 'da_verificare', nota: 'Segnalato fumo scuro' }, // Roma
+            { lat: 45.4642, lon: 9.1900, tipo: 'da_verificare', nota: 'Odore di bruciato' } // Milano
+        ];
+
+        segnalazioniSimulate.forEach(segnalazione => {
+            let colore, riempimento, titoloPopup;
+
+            if (segnalazione.tipo === 'validata') {
+                colore = '#33cc33'; // Verde
+                riempimento = '#2eb82e';
+                titoloPopup = 'Segnalazione Validata';
+                totaleValidate++;
+            } else {
+                colore = '#ffcc00'; // Arancio/Giallo
+                riempimento = '#e6b800';
+                titoloPopup = 'Da Verificare';
+                totaleDaVerificare++;
+            }
+
+            L.circle([segnalazione.lat, segnalazione.lon], {
+                color: colore, fillColor: riempimento, fillOpacity: 0.9, radius: 1500
+            }).addTo(map).bindPopup(`<strong>${titoloPopup}</strong><br>Nota: ${segnalazione.nota}`);
+        });
+
+        aggiornaContatori(); // Aggiorna per mostrare i dati simulati
+
     </script>
 </body>
 </html>
