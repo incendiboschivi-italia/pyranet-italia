@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        body { margin: 0; padding: 0; }
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
         #mappa { height: 100vh; width: 100%; } 
     </style>
 </head>
@@ -18,51 +18,72 @@
     <div id="mappa"></div>
 
     <script>
-        // Inizializza la mappa sull'Italia
-        var map = L.map('mappa').setView([41.8719, 12.5674], 6);
+        // 1. DEFINIZIONE DEI TRE LIVELLI DI BASE (FRONTEND)
+        
+        // Livello 1: Mappa Scura (CartoDB Dark Matter)
+        var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors, © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
+        });
 
-        // Aggiunge la cartografia di base
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        // Livello 2: Mappa Satellitare (Esri World Imagery)
+        var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
 
-        // La tua chiave API e l'URL per scaricare i dati italiani (ITA) delle ultime 24 ore dal satellite VIIRS
+        // Livello 3: Mappa Topografica (OpenTopoMap)
+        var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
+        });
+
+        // 2. INIZIALIZZAZIONE DELLA MAPPA
+        // Impostiamo la mappaScura come livello di partenza predefinito
+        var map = L.map('mappa', {
+            center: [41.8719, 12.5674],
+            zoom: 6,
+            layers: [mappaScura] 
+        });
+
+        // 3. CREAZIONE DELL'INTERFACCIA DI SELEZIONE (CONTROLLO LIVELLI)
+        var livelliBase = {
+            "Modalità Scura": mappaScura,
+            "Vista Satellitare": mappaSatellitare,
+            "Mappa Topografica": mappaTopografica
+        };
+
+        // Aggiunge il quadratino di scelta in alto a destra sulla mappa
+        L.control.layers(livelliBase, null, { position: 'topright', collapsed: false }).addTo(map);
+
+        // 4. CARICAMENTO DATI REALI NASA FIRMS
         const apiKey = '6c7f29542d837e182b0bf7292cb52b99';
         const urlNasa = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKey}/VIIRS_SNPP_NRT/ITA/1`;
 
-        // Funzione per recuperare i dati
         fetch(urlNasa)
-            .then(response => response.text()) // La NASA ci restituisce un file di testo (CSV)
+            .then(response => response.text())
             .then(datiCsv => {
-                // Dividiamo il testo riga per riga
                 const righe = datiCsv.trim().split('\n');
                 
-                // Partiamo da 1 per saltare la primissima riga (che contiene solo i titoli delle colonne)
                 for (let i = 1; i < righe.length; i++) {
                     const colonne = righe[i].split(',');
-                    
-                    // Nel formato NASA per nazioni: 
-                    // colonna[0] = Nazione (es. ITA)
-                    // colonna[1] = Latitudine
-                    // colonna[2] = Longitudine
                     const lat = parseFloat(colonne[1]);
                     const lon = parseFloat(colonne[2]);
                     
-                    // Se i dati sono validi, creiamo un cerchio rosso sulla mappa
                     if (!isNaN(lat) && !isNaN(lon)) {
+                        // Creiamo cerchi arancioni/rossi accesi che risaltano sullo sfondo scuro
                         L.circle([lat, lon], {
-                            color: 'red',       // Colore del bordo
-                            fillColor: '#f03',  // Colore del riempimento
-                            fillOpacity: 0.7,   // Trasparenza
-                            radius: 1500        // Raggio in metri (1.5 km)
+                            color: '#ff3300',     // Bordo rosso vivo
+                            fillColor: '#ffcc00', // Riempimento arancio/giallo per simulare il fuoco
+                            fillOpacity: 0.8,
+                            radius: 1000          // Raggio ridotto a 1km per maggiore precisione visiva
                         }).addTo(map)
-                        .bindPopup("Anomalia termica rilevata (Dati: NASA FIRMS)");
+                        .bindPopup(`<strong>Anomalia Termica</strong><br>Lat: ${lat}<br>Lon: ${lon}<br><span style="color:gray; font-size:11px;">Fonte: NASA FIRMS</span>`);
                     }
                 }
             })
             .catch(errore => {
-                console.error("Si è verificato un errore nel caricamento dei dati NASA:", errore);
+                console.error("Errore nel caricamento dei dati NASA:", errore);
             });
     </script>
 </body>
