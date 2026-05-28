@@ -7,12 +7,14 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         #mappa { height: 100vh; width: 100%; } 
 
-        /* Stili generici per i titoli dei pannelli */
         h3 {
             margin: 0 0 15px 0;
             font-size: 16px;
@@ -22,10 +24,33 @@
             letter-spacing: 1px;
         }
 
-        /* 1. PANNELLO MONITORAGGIO (SINISTRA) */
-        #pannello-monitoraggio {
+        /* NUOVO PANNELLO AUTENTICAZIONE */
+        #pannello-auth {
             position: absolute;
             top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        #btn-auth {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: #1a73e8; /* Blu predefinito */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transition: background-color 0.3s ease;
+        }
+
+        #btn-auth:hover { opacity: 0.9; }
+
+        /* 1. PANNELLO MONITORAGGIO (Spostato a top: 75px per fare spazio al bottone Auth) */
+        #pannello-monitoraggio {
+            position: absolute;
+            top: 75px; 
             left: 20px;
             z-index: 1000;
             background-color: rgba(25, 25, 25, 0.9);
@@ -65,10 +90,10 @@
             font-size: 12px;
         }
 
-        /* 2. NUOVO PANNELLO INDICI DI RISCHIO (DESTRA) */
+        /* 2. PANNELLO INDICI DI RISCHIO */
         #pannello-rischio {
             position: absolute;
-            top: 80px; /* Posizionato appena sotto il selettore dei livelli della mappa */
+            top: 80px; 
             right: 20px;
             z-index: 1000;
             background-color: rgba(25, 25, 25, 0.9);
@@ -77,7 +102,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.5);
             border: 1px solid #444;
-            max-width: 280px; /* Tiene il testo compatto */
+            max-width: 280px;
         }
 
         .voce-rischio {
@@ -93,11 +118,10 @@
             height: 14px;
             border-radius: 3px;
             margin-right: 12px;
-            margin-top: 2px; /* Allinea il quadretto alla prima riga del testo */
+            margin-top: 2px;
             flex-shrink: 0;
         }
 
-        /* Colori dei quadretti di allerta */
         .q-verde { background-color: #28a745; }
         .q-giallo { background-color: #ffc107; }
         .q-rosso { background-color: #dc3545; }
@@ -107,26 +131,26 @@
             margin-bottom: 2px;
             letter-spacing: 0.5px;
         }
-
     </style>
 </head>
 <body>
 
+    <div id="pannello-auth">
+        <button id="btn-auth">🔑 Caricamento...</button>
+    </div>
+
     <div id="pannello-monitoraggio">
         <h3>Monitoraggio Italia</h3>
-        
         <div class="voce-legenda">
             <div class="pallino colore-nasa"></div>
             <span>Satellite (NASA)</span>
             <span class="contatore" id="conta-nasa">0</span>
         </div>
-        
         <div class="voce-legenda">
             <div class="pallino colore-validata"></div>
             <span>Validata (Resp. Regionali)</span>
             <span class="contatore" id="conta-validate">0</span>
         </div>
-        
         <div class="voce-legenda">
             <div class="pallino colore-da-verificare"></div>
             <span>Da Verificare (Cittadini)</span>
@@ -136,7 +160,6 @@
 
     <div id="pannello-rischio">
         <h3>Indici di Rischio</h3>
-        
         <div class="voce-rischio">
             <div class="quadretto q-verde"></div>
             <div class="testo-rischio">
@@ -144,7 +167,6 @@
                 L'evento può essere affrontato con i mezzi ordinari. Rischio incendi boschivi.
             </div>
         </div>
-        
         <div class="voce-rischio">
             <div class="quadretto q-giallo"></div>
             <div class="testo-rischio">
@@ -152,7 +174,6 @@
                 Richiede una rapida ed efficiente risposta del sistema di lotta attiva. Rischio incendi boschivi.
             </div>
         </div>
-        
         <div class="voce-rischio">
             <div class="quadretto q-rosso"></div>
             <div class="testo-rischio">
@@ -165,7 +186,53 @@
     <div id="mappa"></div>
 
     <script>
-        // 1. Inizializzazione Mappa e Livelli
+        // --- LOGICA FIREBASE AUTH ---
+        // ATTENZIONE: SOSTITUISCI QUESTI VALORI CON QUELLI DEL TUO PROGETTO FIREBASE
+        const firebaseConfig = {
+            apiKey: "INSERISCI_LA_TUA_API_KEY_FIREBASE",
+            authDomain: "INSERISCI_IL_TUO_AUTH_DOMAIN",
+            projectId: "INSERISCI_IL_TUO_PROJECT_ID",
+            storageBucket: "INSERISCI_IL_TUO_STORAGE_BUCKET",
+            messagingSenderId: "INSERISCI_IL_TUO_MESSAGING_SENDER_ID",
+            appId: "INSERISCI_IL_TUO_APP_ID"
+        };
+
+        // Inizializzazione Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const btnAuth = document.getElementById('btn-auth');
+
+        // Ascolta in tempo reale se l'utente è loggato o meno
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // UTENTE LOGGATO
+                const nomeUtente = user.displayName ? user.displayName.split(' ')[0] : 'Volontario';
+                btnAuth.innerHTML = `👤 ${nomeUtente} - Segnala (Esci)`;
+                btnAuth.style.backgroundColor = '#28a745'; // Diventa verde per indicare la sessione attiva
+                
+                btnAuth.onclick = () => {
+                    // Azione dinamica: per ora gestiamo il logout con un alert operativo
+                    if(confirm("Vuoi inserire una nuova segnalazione?\n\n[ OK ] = Disconnettiti dal sistema (Esci)\n[ Annulla ] = Resta operativo sulla mappa")) {
+                        auth.signOut();
+                    }
+                };
+            } else {
+                // UTENTE NON LOGGATO
+                btnAuth.innerHTML = '🔑 Accedi / Registrati';
+                btnAuth.style.backgroundColor = '#1a73e8'; // Torna blu
+                
+                btnAuth.onclick = () => {
+                    // Avvia il popup di accesso tramite Google
+                    auth.signInWithPopup(provider).catch(error => {
+                        console.error("Errore durante l'autenticazione:", error);
+                    });
+                };
+            }
+        });
+
+
+        // --- LOGICA MAPPA LEAFLET E DATI (Invariata) ---
         var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
         var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
         var mappaTopografica = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
@@ -180,7 +247,6 @@
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         L.control.layers({ "Modalità Scura": mappaScura, "Vista Satellitare": mappaSatellitare, "Mappa Topografica": mappaTopografica }, null, { position: 'topright' }).addTo(map);
 
-        // 2. Variabili per i contatori
         let totaleNasa = 0;
         let totaleValidate = 0;
         let totaleDaVerificare = 0;
@@ -191,9 +257,8 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // 3. Caricamento dati NASA FIRMS
-        const apiKey = '6c7f29542d837e182b0bf7292cb52b99';
-        const urlNasa = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKey}/VIIRS_SNPP_NRT/ITA/1`;
+        const apiKeyNASA = '6c7f29542d837e182b0bf7292cb52b99';
+        const urlNasa = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKeyNASA}/VIIRS_SNPP_NRT/ITA/1`;
 
         fetch(urlNasa)
             .then(response => response.text())
@@ -216,7 +281,6 @@
             })
             .catch(errore => console.error("Errore NASA:", errore));
 
-        // 4. Simulazione Segnalazioni Manuali 
         const segnalazioniSimulate = [
             { lat: 43.7695, lon: 11.2558, tipo: 'validata', nota: 'Pattuglia sul posto' }, 
             { lat: 41.9028, lon: 12.4964, tipo: 'da_verificare', nota: 'Segnalato fumo scuro' }, 
