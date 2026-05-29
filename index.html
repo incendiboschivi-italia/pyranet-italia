@@ -10,6 +10,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
     
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -133,6 +135,7 @@
         }
 
         .btn-invia:hover { opacity: 0.9; }
+        .btn-invia:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* PANNELLO MONITORAGGIO (SINISTRA) */
         #pannello-monitoraggio {
@@ -322,7 +325,7 @@
                     <textarea id="seg-note" rows="3" placeholder="Es. Fumo denso, vento forte verso nord-ovest, abitazioni vicine..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-invia" style="background-color: #28a745; margin-bottom: 10px;">Invia Segnalazione</button>
+                <button type="submit" class="btn-invia" id="btn-invia-seg" style="background-color: #28a745; margin-bottom: 10px;">Invia Segnalazione</button>
                 <button type="button" class="btn-invia" id="btn-logout-form" style="background-color: #dc3545;">Disconnetti Account</button>
             </form>
         </div>
@@ -387,6 +390,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
         const provider = new firebase.auth.GoogleAuthProvider();
         
         auth.languageCode = 'it';
@@ -406,6 +411,7 @@
         const testoSwitch = document.getElementById('testo-switch');
         const authTitolo = document.getElementById('auth-titolo');
         const btnInviaAuth = document.getElementById('btn-invia-auth');
+        const btnInviaSeg = document.getElementById('btn-invia-seg');
         const gruppoNome = document.getElementById('gruppo-nome');
         const gruppoProfilo = document.getElementById('gruppo-profilo');
         const linkRecuperoPassword = document.getElementById('link-recupero-password');
@@ -455,21 +461,15 @@
             if (!emailUtente) return; 
 
             auth.sendPasswordResetEmail(emailUtente)
-                .then(() => {
-                    alert("📧 Link di ripristino inviato! Controlla la tua casella di posta elettronica (anche nello Spam).");
-                })
+                .then(() => alert("📧 Link di ripristino inviato! Controlla la tua casella (anche nello Spam)."))
                 .catch((error) => {
-                    if (error.code === 'auth/invalid-email') {
-                        alert("⚠️ L'indirizzo email inserito non è valido. Controlla la sintassi (es. nome@dominio.it).");
-                    } else if (error.code === 'auth/user-not-found' || error.code === 'auth/user-not-found-protection') {
-                        alert("❌ Account inesistente: non è presente alcun utente registrato con questa email.");
-                    } else {
-                        alert("Impossibile inviare l'email di recupero: " + error.message);
-                    }
+                    if (error.code === 'auth/invalid-email') alert("⚠️ L'indirizzo email inserito non è valido.");
+                    else if (error.code === 'auth/user-not-found' || error.code === 'auth/user-not-found-protection') alert("❌ Account inesistente.");
+                    else alert("Errore: " + error.message);
                 });
         };
 
-        // Invio Modulo Login/Registrazione
+        // Invio Modulo Login/Registrazione + Scrittura su Firestore Collezione "utenti"
         formAuth.onsubmit = (e) => {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
@@ -483,23 +483,24 @@
                     .then((userCredential) => {
                         return userCredential.user.updateProfile({
                             displayName: `${nome} (${profilo})`
+                        }).then(() => {
+                            // Salva i dati nella raccolta "utenti" usando l'UID come chiave del documento
+                            return db.collection('utenti').doc(userCredential.user.uid).set({
+                                email: email,
+                                ruolo: profilo
+                            });
                         });
                     })
                     .then(() => {
                         alert("Registrazione completata con successo!");
                     })
                     .catch((error) => {
-                        if (error.code === 'auth/email-already-in-use') {
-                            alert("⚠️ ATTENZIONE: Questa email è già registrata nel sistema.\n\nPassa alla schermata di accesso cliccando su 'Accedi qui' oppure utilizza un indirizzo email diverso.");
-                        } else {
-                            alert("Impossibile completare la registrazione: " + error.message);
-                        }
+                        if (error.code === 'auth/email-already-in-use') alert("⚠️ Questa email è già registrata.");
+                        else alert("Impossibile completare la registrazione: " + error.message);
                     });
             } else {
                 auth.signInWithEmailAndPassword(email, password)
-                    .catch((error) => {
-                        alert("Credenziali errate o problema di connessione: " + error.message);
-                    });
+                    .catch((error) => alert("Credenziali errate o problema di connessione: " + error.message));
             }
         };
 
@@ -518,27 +519,19 @@
             }
         };
 
-        // Stato Autenticazione e attivazione Form Segnalazione
+        // Stato Autenticazione
         auth.onAuthStateChanged(user => {
             if (user) {
                 modalAuthContainer.style.display = 'none';
                 const nomeVisualizzato = user.displayName ? user.displayName.split(' (')[0] : 'Utente';
                 btnAuth.innerHTML = `👤 ${nomeVisualizzato} - Inserisci Segnalazione`;
                 btnAuth.style.backgroundColor = '#28a745'; 
-                
-                // Se è loggato, apre il pannello per inviare l'avvistamento
-                btnAuth.onclick = () => {
-                    modalSegnalazioneContainer.style.display = 'flex';
-                };
+                btnAuth.onclick = () => modalSegnalazioneContainer.style.display = 'flex';
             } else {
                 btnAuth.innerHTML = '🔑 Accedi / Registrati';
                 btnAuth.style.backgroundColor = '#1a73e8'; 
                 modalSegnalazioneContainer.style.display = 'none';
-                
-                // Se non è loggato, apre il pannello per fare l'accesso
-                btnAuth.onclick = () => {
-                    modalAuthContainer.style.display = 'flex';
-                };
+                btnAuth.onclick = () => modalAuthContainer.style.display = 'flex';
             }
         });
 
@@ -568,39 +561,84 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // Gestione Invio Modulo Segnalazione Incendio
-        formSegnalazione.onsubmit = (e) => {
+        // Gestione Invio Modulo Segnalazione (Upload Foto + Scrittura DB)
+        formSegnalazione.onsubmit = async (e) => {
             e.preventDefault();
 
-            // Calcolo matematico conversione DMS -> Lat/Lon Decimale
-            const latG = parseFloat(document.getElementById('lat-gradi').value);
-            const latP = parseFloat(document.getElementById('lat-primi').value);
-            const latS = parseFloat(document.getElementById('lat-secondi').value);
-            const latDecimale = latG + (latP / 60) + (latS / 3600);
+            const file = document.getElementById('seg-foto').files[0];
+            if (!file) {
+                alert("Devi allegare una fotografia dell'incendio per procedere.");
+                return;
+            }
 
-            const lonG = parseFloat(document.getElementById('lon-gradi').value);
-            const lonP = parseFloat(document.getElementById('lon-primi').value);
-            const lonS = parseFloat(document.getElementById('lon-secondi').value);
-            const lonDecimale = lonG + (lonP / 60) + (lonS / 3600);
+            // Disabilita il pulsante durante l'upload per evitare doppie richieste
+            btnInviaSeg.disabled = true;
+            btnInviaSeg.innerText = "Caricamento dati in corso...";
 
-            const vegetazione = document.getElementById('seg-vegetazione').value;
-            const note = document.getElementById('seg-note').value;
-            const nomeOperatore = auth.currentUser ? auth.currentUser.displayName : 'Operatore';
+            try {
+                // 1. Calcolo conversioni DMS -> Decimale
+                const latG = parseFloat(document.getElementById('lat-gradi').value);
+                const latP = parseFloat(document.getElementById('lat-primi').value);
+                const latS = parseFloat(document.getElementById('lat-secondi').value);
+                const latDecimale = latG + (latP / 60) + (latS / 3600);
 
-            // Plot istantaneo sulla mappa come punto "Da Verificare"
-            L.circle([latDecimale, lonDecimale], {
-                color: '#ffcc00', fillColor: '#e6b800', fillOpacity: 0.9, radius: 1500
-            }).addTo(map).bindPopup(`<strong>Nuova Segnalazione (Da Verificare)</strong><br>Vegetazione: ${vegetazione}<br>Note: ${note || 'Nessuna nota aggiuntiva.'}<br><em>Inserita da: ${nomeOperatore}</em>`);
+                const lonG = parseFloat(document.getElementById('lon-gradi').value);
+                const lonP = parseFloat(document.getElementById('lon-primi').value);
+                const lonS = parseFloat(document.getElementById('lon-secondi').value);
+                const lonDecimale = lonG + (lonP / 60) + (lonS / 3600);
 
-            // Aggiorna contatori e mappa
-            totaleDaVerificare++;
-            aggiornaContatori();
-            map.setView([latDecimale, lonDecimale], 11);
+                const vegetazione = document.getElementById('seg-vegetazione').value;
+                const note = document.getElementById('seg-note').value;
+                const nomeCompleto = auth.currentUser ? auth.currentUser.displayName : 'Sconosciuto';
+                const emailUtente = auth.currentUser ? auth.currentUser.email : '';
 
-            alert("✅ Avvistamento registrato con successo! Il marker è stato posizionato millimetricamente sulla mappa in base alle tue coordinate.");
-            
-            formSegnalazione.reset();
-            modalSegnalazioneContainer.style.display = 'none';
+                // 2. Upload file su Firebase Storage
+                const nomeFile = Date.now() + '_' + file.name;
+                const storageRef = storage.ref('foto_segnalazioni/' + nomeFile);
+                const snapshot = await storageRef.put(file);
+                const urlFoto = await snapshot.ref.getDownloadURL();
+
+                // 3. Scrittura Documento su Firestore
+                await db.collection('segnalazioni').add({
+                    coordinateDMS: {
+                        latitudine: `${latG}° ${latP}' ${latS}" N`,
+                        longitudine: `${lonG}° ${lonP}' ${lonS}" E`
+                    },
+                    coordinateDecimali: {
+                        latitudine: latDecimale,
+                        longitudine: lonDecimale
+                    },
+                    vegetazione: vegetazione,
+                    note: note,
+                    fotoUrl: urlFoto,
+                    mittenteNome: nomeCompleto,
+                    mittenteEmail: emailUtente,
+                    stato: "in attesa",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 4. Plot Istantaneo Mappa Frontend
+                L.circle([latDecimale, lonDecimale], {
+                    color: '#ffcc00', fillColor: '#e6b800', fillOpacity: 0.9, radius: 1500
+                }).addTo(map).bindPopup(`<strong>Nuova Segnalazione (Da Verificare)</strong><br>Vegetazione: ${vegetazione}<br>Note: ${note || 'Nessuna nota aggiuntiva.'}<br><em>Inserita da: ${nomeCompleto}</em>`);
+
+                totaleDaVerificare++;
+                aggiornaContatori();
+                map.setView([latDecimale, lonDecimale], 11);
+
+                alert("✅ Trasmissione completata! L'avvistamento è stato protocollato nel database e inviato alla centrale.");
+                
+                formSegnalazione.reset();
+                modalSegnalazioneContainer.style.display = 'none';
+
+            } catch (error) {
+                console.error("Errore durante l'invio:", error);
+                alert("Errore critico di comunicazione con il database: " + error.message);
+            } finally {
+                // Ripristina il pulsante
+                btnInviaSeg.disabled = false;
+                btnInviaSeg.innerText = "Invia Segnalazione";
+            }
         };
 
         // Recupero Moduli NASA
