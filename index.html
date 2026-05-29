@@ -385,7 +385,12 @@
                     })
                     .catch((error) => {
                         console.error("Errore di registrazione:", error);
-                        alert("Impossibile completare la registrazione: " + error.message);
+                        // CONTROLLO DUPLICATI: Mostra avviso se la mail è già registrata
+                        if (error.code === 'auth/email-already-in-use') {
+                            alert("⚠️ ATTENZIONE: Questa email è già registrata nel sistema.\n\nPassa alla schermata di accesso cliccando su 'Accedi qui' oppure utilizza un indirizzo email diverso.");
+                        } else {
+                            alert("Impossibile completare la registrazione: " + error.message);
+                        }
                     });
             } else {
                 auth.signInWithEmailAndPassword(email, password)
