@@ -47,6 +47,81 @@
 
         #btn-auth:hover { opacity: 0.9; }
 
+        /* INTERFACCIA MODALE MODULO REGISTRAZIONE / ACCESSO */
+        #modal-auth-container {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.75); 
+            z-index: 2000; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .finestra-modal {
+            background: #191919; 
+            color: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            width: 340px; 
+            border: 1px solid #444; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7); 
+            position: relative;
+        }
+
+        .chiudi-modal {
+            position: absolute; 
+            top: 10px; 
+            right: 15px; 
+            cursor: pointer; 
+            font-size: 22px; 
+            color: #aaa;
+        }
+        .chiudi-modal:hover { color: white; }
+
+        .campo-form {
+            margin-bottom: 14px;
+        }
+
+        .campo-form label {
+            display: block; 
+            font-size: 12px; 
+            margin-bottom: 5px; 
+            color: #bbb;
+        }
+
+        .campo-form input, .campo-form select {
+            width: 100%; 
+            padding: 9px; 
+            background: #2b2b2b; 
+            border: 1px solid #444; 
+            color: white; 
+            border-radius: 6px; 
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .campo-form input:focus, .campo-form select:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        .btn-invia {
+            width: 100%; 
+            padding: 10px; 
+            background: #1a73e8; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
         /* PANNELLO MONITORAGGIO (SINISTRA) */
         #pannello-monitoraggio {
             position: absolute;
@@ -139,6 +214,53 @@
         <button id="btn-auth">🔑 Caricamento...</button>
     </div>
 
+    <div id="modal-auth-container">
+        <div class="finestra-modal">
+            <span class="chiudi-modal" id="chiudi-modal">&times;</span>
+            <h3 id="auth-titolo">Accedi a PyraNet</h3>
+            
+            <form id="form-auth">
+                <div class="campo-form" id="gruppo-nome" style="display: none;">
+                    <label>Nome Completo</label>
+                    <input type="text" id="auth-nome" placeholder="Es. Mario Rossi">
+                </div>
+
+                <div class="campo-form">
+                    <label>Indirizzo Email</label>
+                    <input type="email" id="auth-email" required placeholder="Inserisci la tua email">
+                </div>
+                
+                <div class="campo-form">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" required placeholder="Inserisci la password">
+                </div>
+
+                <div class="campo-form" id="gruppo-profilo" style="display: none;">
+                    <label>Tipo di Profilo Operativo</label>
+                    <select id="auth-profilo">
+                        <option value="Cittadino / Utente Comune">Cittadino / Utente Comune</option>
+                        <option value="Volontario Antincendio">Volontario Antincendio / Protezione Civile</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-invia" id="btn-invia-auth">Accedi</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 15px; font-size: 13px;">
+                <span id="testo-switch">Non hai un account? </span>
+                <a href="#" id="link-switch" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Registrati qui</a>
+            </div>
+
+            <div style="margin: 15px 0; border-top: 1px solid #444; position: relative; text-align: center;">
+                <span style="background: #191919; padding: 0 10px; position: relative; top: -10px; font-size: 11px; color: #8840472059;">OPPURE</span>
+            </div>
+
+            <button id="btn-google-auth" style="width: 100%; padding: 10px; background: #ffffff; color: #444; border: 1px solid #ccc; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18"> Accedi con Google
+            </button>
+        </div>
+    </div>
+
     <div id="pannello-monitoraggio">
         <h3>Monitoraggio Italia</h3>
         <div class="voce-legenda">
@@ -200,13 +322,94 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
+        
+        // Elementi DOM dell'autenticazione
         const btnAuth = document.getElementById('btn-auth');
+        const modalContainer = document.getElementById('modal-auth-container');
+        const chiudiModal = document.getElementById('chiudi-modal');
+        const linkSwitch = document.getElementById('link-switch');
+        const testoSwitch = document.getElementById('testo-switch');
+        const authTitolo = document.getElementById('auth-titolo');
+        const btnInviaAuth = document.getElementById('btn-invia-auth');
+        const gruppoNome = document.getElementById('gruppo-nome');
+        const gruppoProfilo = document.getElementById('gruppo-profilo');
+        const btnGoogleAuth = document.getElementById('btn-google-auth');
+        const formAuth = document.getElementById('form-auth');
 
-        // Monitoraggio sessione utente
+        let modalitaRegistrazione = false;
+
+        // Cambia l'interfaccia tra Accedi e Registrati tramite il link "Registrati qui"
+        linkSwitch.onclick = (e) => {
+            e.preventDefault();
+            modalitaRegistrazione = !modalitaRegistrazione;
+            if (modalitaRegistrazione) {
+                authTitolo.innerText = "Registrazione PyraNet";
+                btnInviaAuth.innerText = "Registrati";
+                testoSwitch.innerText = "Hai già un account? ";
+                linkSwitch.innerText = "Accedi qui";
+                gruppoNome.style.display = "block";
+                gruppoProfilo.style.display = "block";
+                document.getElementById('auth-nome').required = true;
+            } else {
+                authTitolo.innerText = "Accedi a PyraNet";
+                btnInviaAuth.innerText = "Accedi";
+                testoSwitch.innerText = "Non hai un account? ";
+                linkSwitch.innerText = "Registrati qui";
+                gruppoNome.style.display = "none";
+                gruppoProfilo.style.display = "none";
+                document.getElementById('auth-nome').required = false;
+            }
+        };
+
+        chiudiModal.onclick = () => { modalContainer.style.display = 'none'; };
+
+        // Gestore per l'invio del modulo (Email/Password)
+        formAuth.onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            if (modalitaRegistrazione) {
+                const nome = document.getElementById('auth-nome').value;
+                const profilo = document.getElementById('auth-profilo').value;
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Uniamo il nome scelto ed il profilo operativo all'interno del profilo utente Firebase
+                        return userCredential.user.updateProfile({
+                            displayName: `${nome} (${profilo})`
+                        });
+                    })
+                    .then(() => {
+                        alert("Registrazione completata con successo!");
+                    })
+                    .catch((error) => {
+                        console.error("Errore di registrazione:", error);
+                        alert("Impossibile completare la registrazione: " + error.message);
+                    });
+            } else {
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch((error) => {
+                        console.error("Errore di accesso:", error);
+                        alert("Credenziali errate o problema di connessione: " + error.message);
+                    });
+            }
+        };
+
+        // Gestore dell'autenticazione tramite Google nel modulo
+        btnGoogleAuth.onclick = () => {
+            auth.signInWithPopup(provider).catch(error => {
+                console.error("Errore durante l'autenticazione Google:", error);
+                alert("Errore di accesso. Verifica di aver abilitato il provider Google e inserito il dominio 'incendiboschivi-italia.github.io' tra i domini autorizzati su Firebase.");
+            });
+        };
+
+        // Monitoraggio della sessione utente attiva
         auth.onAuthStateChanged(user => {
             if (user) {
-                const nomeUtente = user.displayName ? user.displayName.split(' ')[0] : 'Volontario';
-                btnAuth.innerHTML = `👤 ${nomeUtente} - Segnala (Esci)`;
+                modalContainer.style.display = 'none';
+                const nomeVisualizzato = user.displayName ? user.displayName.split(' (')[0] : 'Utente';
+                btnAuth.innerHTML = `👤 ${nomeVisualizzato} - Segnala (Esci)`;
                 btnAuth.style.backgroundColor = '#28a745'; 
                 
                 btnAuth.onclick = () => {
@@ -219,10 +422,7 @@
                 btnAuth.style.backgroundColor = '#1a73e8'; 
                 
                 btnAuth.onclick = () => {
-                    auth.signInWithPopup(provider).catch(error => {
-                        console.error("Errore durante l'autenticazione:", error);
-                        alert("Errore di accesso. Verifica di aver abilitato il provider Google e inserito i domini autorizzati su Firebase.");
-                    });
+                    modalContainer.style.display = 'flex';
                 };
             }
         });
@@ -230,7 +430,6 @@
 
         // --- LOGICA MAPPA LEAFLET E DATI ---
         
-        // SORGENTI MAPPA CORRETTE (Senza chiavi API e senza errori di autenticazione)
         var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -266,7 +465,6 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // Proxy CORS per bypassare il blocco della NASA
         const apiKeyNASA = '6c7f29542d837e182b0bf7292cb52b99';
         const urlNasaOriginale = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKeyNASA}/VIIRS_SNPP_NRT/ITA/1`;
         const urlNasa = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlNasaOriginale)}`;
