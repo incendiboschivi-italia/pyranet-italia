@@ -387,8 +387,8 @@
             appId: "1:8840472059:web:b77090fa31f154d390575e"
         };
 
-        // QUI INSERISCI LA CHIAVE CHE OTTIENI DA IMGBB.COM
-        const IMGBB_API_KEY = "INSERISCI_QUI_LA_TUA_CHIAVE_IMGBB";
+        // CHIAVE API IMGBB ATTIVATA
+        const IMGBB_API_KEY = "843e032e57002e06c0555d3742be5738";
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -563,8 +563,8 @@
         formSegnalazione.onsubmit = async (e) => {
             e.preventDefault();
 
-            if IMGBB_API_KEY === 843e032e57002e06c0555d3742be5738 {
-                alert("Errore Configurazione: Devi prima inserire la tua chiave API di ImgBB nel codice (riga 558).");
+            if (IMGBB_API_KEY === "") {
+                alert("Errore Configurazione: Manca la chiave API di ImgBB.");
                 return;
             }
 
