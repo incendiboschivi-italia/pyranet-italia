@@ -107,51 +107,63 @@
 
         /* FIX STILE POPUP LEAFLET (Per testo scuro su sfondo bianco del popup standard) */
         .leaflet-popup-content { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 14px 16px; }
-        /* ===== AGGIUNTA PER IL SUPPORTO SMARTPHONE (AGGIORNATA) ===== */
+        /* ===== AGGIUNTA PER IL SUPPORTO SMARTPHONE (OTTIMIZZATA IOS/ANDROID) ===== */
         @media screen and (max-width: 768px) {
-            /* 1. Altezza dinamica: evita il bug della barra degli indirizzi del browser che copre la mappa */
             #mappa { height: 100dvh !important; }
 
-            /* 2. Moduli scorrevoli: impedisce che il form esca dallo schermo se è troppo lungo */
             .finestra-modal, .modale-largo { 
-                width: 90% !important; 
-                max-height: 85vh; /* Blocca l'altezza al 85% dello schermo */
-                overflow-y: auto; /* Aggiunge lo scorrimento col dito all'interno del modulo */
+                width: 95% !important; 
+                max-height: 85vh; 
+                overflow-y: auto; 
                 padding: 15px; 
                 box-sizing: border-box; 
             }
             
-            /* 3. Anti-Zoom: evita che iOS/Android zoomino la pagina quando tocchi una casella di testo */
             .campo-form input, .campo-form select, .campo-form textarea {
                 font-size: 16px !important; 
             }
 
-            /* 4. Sistema i bottoni in alto a sinistra in modo che non coprano il controllo mappa a destra */
+            /* FIX PER I BOTTONI SCHIACCIATI (Rispetta la Safe Area di iOS/Android) */
             #pannello-auth { 
-                top: 10px; left: 10px; right: 55px; 
-            }
-            #btn-auth, .btn-coordinatore { 
-                font-size: 13px; padding: 10px; width: 100%; 
+                top: env(safe-area-inset-top, 15px); 
+                left: 10px; 
+                right: 55px; /* Lascia spazio ai tasti zoom sulla destra */
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
             }
             
-            /* 5. Rimpicciolisce il pannello monitoraggio e lo alza un po' per non coprire i loghi in basso */
+            #btn-auth, .btn-coordinatore { 
+                font-size: 13px; 
+                padding: 0 10px; 
+                width: 100%; 
+                box-sizing: border-box;
+                border-radius: 8px;
+                min-height: 44px; /* Altezza minima standard per il touch */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+            }
+            
+            /* Riposizionamento del pannello monitoraggio */
             #pannello-monitoraggio {
-                top: auto; bottom: 25px; left: 10px;
-                padding: 10px; min-width: 170px; width: auto;
-                max-width: 60%;
+                top: auto; 
+                bottom: env(safe-area-inset-bottom, 25px); 
+                left: 10px;
+                padding: 12px; 
+                min-width: 170px; 
+                width: max-content;
+                max-width: 65%;
+                z-index: 1000;
             }
             #pannello-monitoraggio h3 { font-size: 13px; margin-bottom: 8px; }
             .voce-legenda { font-size: 11px; margin-bottom: 8px; }
             .pallino { width: 10px; height: 10px; flex-shrink: 0; }
 
-            /* 6. Nasconde il pannello di rischio per non coprire troppa mappa visibile */
             #pannello-rischio { display: none; }
-            
-            /* 7. Mette i campi delle coordinate in verticale, più facili da tappare col dito */
             .riga-coordinate { flex-direction: column; gap: 8px; }
-            
-            /* 8. Sistema la larghezza del popup sulla mappa per non farlo uscire dai bordi */
-            .leaflet-popup-content { width: 240px !important; margin: 12px; }
+            .leaflet-popup-content { width: 250px !important; margin: 12px; }
         }
     </style>
 </head>
