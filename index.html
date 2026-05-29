@@ -462,7 +462,18 @@
 
                     marker.bindPopup("Caricamento...");
                     marker.on('popupopen', function() {
-                        let popupHTML = `<strong>${titoloPop}</strong><br>Vegetazione: ${data.vegetazione}<br>Note: ${data.note || ''}<br><em>Inserita da: ${data.mittenteNome}</em><br><a href="${data.fotoUrl}" target="_blank">Vedi Foto Avvistamento</a>`;
+                        let popupHTML = `
+    <strong>${titoloPop}</strong><br>
+    <b>Vegetazione:</b> ${data.vegetazione}<br>
+    <b>Note:</b> ${data.note || 'Nessuna nota'}<br>
+    <em>Inserita da: ${data.mittenteNome}</em><br>
+    
+    <div style="margin-top: 8px; text-align: center;">
+        <img src="${data.fotoUrl}" alt="Foto Incendio" style="width: 100%; max-width: 220px; height: auto; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 1px solid #444;">
+    </div>
+    
+    <a href="${data.fotoUrl}" target="_blank" style="display: block; text-align: center; margin-top: 6px; color: #1a73e8; font-size: 12px; font-weight: bold; text-decoration: none;">🔍 Apri a schermo intero</a>
+`;
                         
                         // Se l'utente attuale è un coordinatore, genera in esclusiva il bottone di eliminazione nel popup
                         if (ruoloUtenteAttuale === 'Coordinatore Provinciale' || ruoloUtenteAttuale === 'Coordinatore Regionale') {
