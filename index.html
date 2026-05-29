@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
     
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -378,7 +377,7 @@
     <div id="mappa"></div>
 
     <script>
-        // --- CONFIGURAZIONE REALE FIREBASE ---
+        // --- CONFIGURAZIONE REALE FIREBASE E API ---
         const firebaseConfig = {
             apiKey: "AIzaSyCtl7kaMqa376Y_DoRESuQVW88M1VE9Jxc",
             authDomain: "pyranet-italia.firebaseapp.com",
@@ -388,10 +387,12 @@
             appId: "1:8840472059:web:b77090fa31f154d390575e"
         };
 
+        // QUI INSERISCI LA CHIAVE CHE OTTIENI DA IMGBB.COM
+        const IMGBB_API_KEY = "INSERISCI_QUI_LA_TUA_CHIAVE_IMGBB";
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
         const provider = new firebase.auth.GoogleAuthProvider();
         
         auth.languageCode = 'it';
@@ -484,16 +485,13 @@
                         return userCredential.user.updateProfile({
                             displayName: `${nome} (${profilo})`
                         }).then(() => {
-                            // Salva i dati nella raccolta "utenti" usando l'UID come chiave del documento
                             return db.collection('utenti').doc(userCredential.user.uid).set({
                                 email: email,
                                 ruolo: profilo
                             });
                         });
                     })
-                    .then(() => {
-                        alert("Registrazione completata con successo!");
-                    })
+                    .then(() => alert("Registrazione completata con successo!"))
                     .catch((error) => {
                         if (error.code === 'auth/email-already-in-use') alert("⚠️ Questa email è già registrata.");
                         else alert("Impossibile completare la registrazione: " + error.message);
@@ -561,9 +559,14 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // Gestione Invio Modulo Segnalazione (Upload Foto + Scrittura DB)
+        // Gestione Invio Modulo Segnalazione (Upload ImgBB + Scrittura Firestore DB)
         formSegnalazione.onsubmit = async (e) => {
             e.preventDefault();
+
+            if (IMGBB_API_KEY === "INSERISCI_QUI_LA_TUA_CHIAVE_IMGBB") {
+                alert("Errore Configurazione: Devi prima inserire la tua chiave API di ImgBB nel codice (riga 558).");
+                return;
+            }
 
             const file = document.getElementById('seg-foto').files[0];
             if (!file) {
@@ -571,9 +574,8 @@
                 return;
             }
 
-            // Disabilita il pulsante durante l'upload per evitare doppie richieste
             btnInviaSeg.disabled = true;
-            btnInviaSeg.innerText = "Caricamento dati in corso...";
+            btnInviaSeg.innerText = "Caricamento foto e dati in corso...";
 
             try {
                 // 1. Calcolo conversioni DMS -> Decimale
@@ -592,11 +594,22 @@
                 const nomeCompleto = auth.currentUser ? auth.currentUser.displayName : 'Sconosciuto';
                 const emailUtente = auth.currentUser ? auth.currentUser.email : '';
 
-                // 2. Upload file su Firebase Storage
-                const nomeFile = Date.now() + '_' + file.name;
-                const storageRef = storage.ref('foto_segnalazioni/' + nomeFile);
-                const snapshot = await storageRef.put(file);
-                const urlFoto = await snapshot.ref.getDownloadURL();
+                // 2. Upload file su ImgBB (Completamente gratuito)
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const rispostaImgBB = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const datiImgBB = await rispostaImgBB.json();
+
+                if (!datiImgBB.success) {
+                    throw new Error("I server di ImgBB hanno rifiutato l'immagine.");
+                }
+
+                const urlFoto = datiImgBB.data.url;
 
                 // 3. Scrittura Documento su Firestore
                 await db.collection('segnalazioni').add({
@@ -620,22 +633,21 @@
                 // 4. Plot Istantaneo Mappa Frontend
                 L.circle([latDecimale, lonDecimale], {
                     color: '#ffcc00', fillColor: '#e6b800', fillOpacity: 0.9, radius: 1500
-                }).addTo(map).bindPopup(`<strong>Nuova Segnalazione (Da Verificare)</strong><br>Vegetazione: ${vegetazione}<br>Note: ${note || 'Nessuna nota aggiuntiva.'}<br><em>Inserita da: ${nomeCompleto}</em>`);
+                }).addTo(map).bindPopup(`<strong>Nuova Segnalazione (Da Verificare)</strong><br>Vegetazione: ${vegetazione}<br>Note: ${note || 'Nessuna nota aggiuntiva.'}<br><em>Inserita da: ${nomeCompleto}</em><br><a href="${urlFoto}" target="_blank">Vedi Foto Avvistamento</a>`);
 
                 totaleDaVerificare++;
                 aggiornaContatori();
                 map.setView([latDecimale, lonDecimale], 11);
 
-                alert("✅ Trasmissione completata! L'avvistamento è stato protocollato nel database e inviato alla centrale.");
+                alert("✅ Trasmissione completata! L'avvistamento è stato protocollato e la foto caricata correttamente.");
                 
                 formSegnalazione.reset();
                 modalSegnalazioneContainer.style.display = 'none';
 
             } catch (error) {
                 console.error("Errore durante l'invio:", error);
-                alert("Errore critico di comunicazione con il database: " + error.message);
+                alert("Errore di rete o di caricamento: " + error.message);
             } finally {
-                // Ripristina il pulsante
                 btnInviaSeg.disabled = false;
                 btnInviaSeg.innerText = "Invia Segnalazione";
             }
