@@ -235,6 +235,8 @@
                     <input type="password" id="auth-password" required placeholder="Inserisci la password">
                 </div>
 
+                <a href="#" id="link-recupero-password" style="display: block; text-align: right; font-size: 12px; color: #1a73e8; text-decoration: none; margin-top: -5px; margin-bottom: 15px; font-weight: 500;">Password dimenticata?</a>
+
                 <div class="campo-form" id="gruppo-profilo" style="display: none;">
                     <label>Tipo di Profilo Operativo</label>
                     <select id="auth-profilo">
@@ -323,6 +325,9 @@
         const auth = firebase.auth();
         const provider = new firebase.auth.GoogleAuthProvider();
         
+        // LOCALIZZAZIONE: Forza la lingua italiana per tutte le email di sistema (Reset Password compreso)
+        auth.languageCode = 'it';
+        
         // Elementi DOM dell'autenticazione
         const btnAuth = document.getElementById('btn-auth');
         const modalContainer = document.getElementById('modal-auth-container');
@@ -333,6 +338,7 @@
         const btnInviaAuth = document.getElementById('btn-invia-auth');
         const gruppoNome = document.getElementById('gruppo-nome');
         const gruppoProfilo = document.getElementById('gruppo-profilo');
+        const linkRecuperoPassword = document.getElementById('link-recupero-password');
         const btnGoogleAuth = document.getElementById('btn-google-auth');
         const formAuth = document.getElementById('form-auth');
 
@@ -349,6 +355,7 @@
                 linkSwitch.innerText = "Accedi qui";
                 gruppoNome.style.display = "block";
                 gruppoProfilo.style.display = "block";
+                linkRecuperoPassword.style.display = "none"; // Nasconde il recupero password in registrazione
                 document.getElementById('auth-nome').required = true;
             } else {
                 authTitolo.innerText = "Accedi a PyraNet";
@@ -357,11 +364,43 @@
                 linkSwitch.innerText = "Registrati qui";
                 gruppoNome.style.display = "none";
                 gruppoProfilo.style.display = "none";
+                linkRecuperoPassword.style.display = "block"; // Mostra il recupero password in login
                 document.getElementById('auth-nome').required = false;
             }
         };
 
         chiudiModal.onclick = () => { modalContainer.style.display = 'none'; };
+
+        // LOGICA RECUPERO PASSWORD (sendPasswordResetEmail)
+        linkRecuperoPassword.onclick = (e) => {
+            e.preventDefault();
+            
+            // Recupera l'email digitata nel campo, se vuoto lo chiede con un prompt
+            let emailUtente = document.getElementById('auth-email').value;
+            if (!emailUtente) {
+                emailUtente = prompt("Inserisci il tuo indirizzo email per ricevere il link di ripristino della password:");
+            } else {
+                emailUtente = prompt("Inviare l'email di recupero password a questo indirizzo?", emailUtente);
+            }
+
+            if (!emailUtente) return; // Se l'utente annulla il prompt, interrompe la funzione
+
+            auth.sendPasswordResetEmail(emailUtente)
+                .then(() => {
+                    alert("📧 Link di ripristino inviato! Controlla la tua casella di posta elettronica (anche nella cartella Spam).");
+                })
+                .catch((error) => {
+                    console.error("Errore recupero password:", error);
+                    // CONTROLLO DEGLI ERRORI RICHIESTI
+                    if (error.code === 'auth/invalid-email') {
+                        alert("⚠️ L'indirizzo email inserito non è valido. Controlla la sintassi (es. nome@dominio.it).");
+                    } else if (error.code === 'auth/user-not-found' || error.code === 'auth/user-not-found-protection') {
+                        alert("❌ Account inesistente: non è presente alcun utente registrato con questa email.");
+                    } else {
+                        alert("Impossibile inviare l'email di recupero: " + error.message);
+                    }
+                });
+        };
 
         // Gestore per l'invio del modulo (Email/Password)
         formAuth.onsubmit = (e) => {
@@ -375,7 +414,6 @@
 
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
-                        // Uniamo il nome scelto ed il profilo operativo all'interno del profilo utente Firebase
                         return userCredential.user.updateProfile({
                             displayName: `${nome} (${profilo})`
                         });
@@ -385,7 +423,6 @@
                     })
                     .catch((error) => {
                         console.error("Errore di registrazione:", error);
-                        // CONTROLLO DUPLICATI: Mostra avviso se la mail è già registrata
                         if (error.code === 'auth/email-already-in-use') {
                             alert("⚠️ ATTENZIONE: Questa email è già registrata nel sistema.\n\nPassa alla schermata di accesso cliccando su 'Accedi qui' oppure utilizza un indirizzo email diverso.");
                         } else {
