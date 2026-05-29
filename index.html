@@ -27,79 +27,38 @@
 
         /* PANNELLO AUTENTICAZIONE E COORDINAMENTO */
         #pannello-auth {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            position: absolute; top: 20px; left: 20px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
         }
 
         #btn-auth {
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            background-color: #1a73e8; 
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            transition: background-color 0.3s ease;
-            width: 100%;
+            padding: 10px 20px; font-size: 14px; font-weight: bold; color: white;
+            background-color: #1a73e8; border: none; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5); transition: background-color 0.3s ease; width: 100%;
         }
         #btn-auth:hover { opacity: 0.9; }
 
         .btn-coordinatore {
-            display: none; 
-            padding: 10px 20px;
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-            background-color: #6f42c1; 
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            text-align: center;
+            display: none; padding: 10px 20px; font-size: 13px; font-weight: bold;
+            color: white; background-color: #6f42c1; border: none; border-radius: 8px;
+            cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); text-align: center;
         }
         .btn-coordinatore:hover { opacity: 0.9; }
 
         /* INTERFACCE MODALI (OVERLAY) */
         #modal-auth-container, #modal-segnalazione-container {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.75); 
-            z-index: 2000; 
-            align-items: center; 
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.75); z-index: 2000; align-items: center; justify-content: center;
         }
 
         .finestra-modal {
-            background: #191919; 
-            color: white; 
-            padding: 25px; 
-            border-radius: 12px; 
-            width: 340px; 
-            border: 1px solid #444; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.7); 
-            position: relative;
+            background: #191919; color: white; padding: 25px; border-radius: 12px; 
+            width: 340px; border: 1px solid #444; box-shadow: 0 4px 20px rgba(0,0,0,0.7); position: relative;
         }
-
         .modale-largo { width: 420px; }
 
         .chiudi-modal {
-            position: absolute; 
-            top: 10px; 
-            right: 15px; 
-            cursor: pointer; 
-            font-size: 22px; 
-            color: #aaa;
+            position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 22px; color: #aaa;
         }
         .chiudi-modal:hover { color: white; }
 
@@ -109,16 +68,13 @@
             width: 100%; padding: 9px; background: #2b2b2b; border: 1px solid #444; 
             color: white; border-radius: 6px; box-sizing: border-box; font-size: 14px;
         }
-        .campo-form input:focus, .campo-form select:focus, .campo-form textarea:focus {
-            border-color: #1a73e8; outline: none;
-        }
+        .campo-form input:focus, .campo-form select:focus, .campo-form textarea:focus { border-color: #1a73e8; outline: none; }
 
         .riga-coordinate { display: flex; gap: 5px; }
 
         .btn-invia {
             width: 100%; padding: 10px; background: #1a73e8; color: white; 
-            border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
-            font-size: 14px; margin-top: 5px;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 5px;
         }
         .btn-invia:hover { opacity: 0.9; }
         .btn-invia:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -148,6 +104,9 @@
         .quadretto { width: 14px; height: 14px; border-radius: 3px; margin-right: 12px; margin-top: 2px; flex-shrink: 0; }
         .q-verde { background-color: #28a745; } .q-giallo { background-color: #ffc107; } .q-rosso { background-color: #dc3545; }
         .testo-rischio strong { display: block; margin-bottom: 2px; letter-spacing: 0.5px; }
+
+        /* FIX STILE POPUP LEAFLET (Per testo scuro su sfondo bianco del popup standard) */
+        .leaflet-popup-content { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 14px 16px; }
     </style>
 </head>
 <body>
@@ -168,12 +127,10 @@
                     <label>Nome Completo / Grado</label>
                     <input type="text" id="auth-nome" placeholder="Es. Mario Rossi">
                 </div>
-
                 <div class="campo-form">
                     <label>Indirizzo Email</label>
                     <input type="email" id="auth-email" required placeholder="Inserisci la tua email">
                 </div>
-                
                 <div class="campo-form">
                     <label>Password</label>
                     <input type="password" id="auth-password" required placeholder="Inserisci la password">
@@ -221,7 +178,6 @@
                         <input type="number" id="lat-secondi" placeholder="Secondi (&quot;)" required min="0" max="59.999" step="0.001">
                     </div>
                 </div>
-
                 <div class="campo-form">
                     <label>Coordinate GPS - Longitudine Est (E)</label>
                     <div class="riga-coordinate">
@@ -230,7 +186,6 @@
                         <input type="number" id="lon-secondi" placeholder="Secondi (&quot;)" required min="0" max="59.999" step="0.001">
                     </div>
                 </div>
-
                 <div class="campo-form">
                     <label>Tipo di Combustibile / Vegetazione</label>
                     <select id="seg-vegetazione" required>
@@ -243,17 +198,14 @@
                         <option value="Altro / Interfaccia Urbano-Forestale">Altro / Interfaccia Urbano-Forestale</option>
                     </select>
                 </div>
-
                 <div class="campo-form">
                     <label>Fotografia Avvistamento (Obbligatoria)</label>
                     <input type="file" id="seg-foto" accept="image/*" required style="padding: 6px;">
                 </div>
-
                 <div class="campo-form">
                     <label>Note Operative</label>
                     <textarea id="seg-note" rows="3" placeholder="Es. Fumo denso, vento forte verso nord-ovest, abitazioni vicine..."></textarea>
                 </div>
-
                 <button type="submit" class="btn-invia" id="btn-invia-seg" style="background-color: #28a745; margin-bottom: 10px;">Invia Segnalazione</button>
                 <button type="button" class="btn-invia" id="btn-logout-form" style="background-color: #dc3545;">Disconnetti Account</button>
             </form>
@@ -266,18 +218,16 @@
         <div class="voce-legenda"><div class="pallino colore-validata"></div><span>Validata (Operativi)</span><span class="contatore" id="conta-validate">0</span></div>
         <div class="voce-legenda"><div class="pallino colore-da-verificare"></div><span>In Attesa (Cittadini)</span><span class="contatore" id="conta-da-verificare">0</span></div>
     </div>
-
     <div id="pannello-rischio">
         <h3>Indici di Rischio</h3>
         <div class="voce-rischio"><div class="quadretto q-verde"></div><div class="testo-rischio"><strong>BASSO</strong>L'evento può essere affrontato con i mezzi ordinari.</div></div>
         <div class="voce-rischio"><div class="quadretto q-giallo"></div><div class="testo-rischio"><strong>MEDIO</strong>Richiede una rapida ed efficiente risposta.</div></div>
         <div class="voce-rischio"><div class="quadretto q-rosso"></div><div class="testo-rischio"><strong>ALTO</strong>Richiede il massimo sforzo operativo statale.</div></div>
     </div>
-
     <div id="mappa"></div>
 
     <script>
-        // --- CONFIGURAZIONE E INIZIALIZZAZIONE ---
+        // --- CONFIGURAZIONE FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCtl7kaMqa376Y_DoRESuQVW88M1VE9Jxc",
             authDomain: "pyranet-italia.firebaseapp.com",
@@ -294,7 +244,7 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.languageCode = 'it';
         
-        let ruoloUtenteAttuale = 'Cittadino / In Attesa'; // Default Globale
+        let ruoloUtenteAttuale = 'Cittadino';
 
         // Elementi DOM
         const btnAuth = document.getElementById('btn-auth');
@@ -302,14 +252,9 @@
         const btnCoordReg = document.getElementById('btn-coord-reg');
         const modalAuthContainer = document.getElementById('modal-auth-container');
         const modalSegnalazioneContainer = document.getElementById('modal-segnalazione-container');
-        const chiudiModalAuth = document.getElementById('chiudi-modal-auth');
-        const chiudiModalSeg = document.getElementById('chiudi-modal-seg');
-        const formAuth = document.getElementById('form-auth');
-        const formSegnalazione = document.getElementById('form-segnalazione');
         
         let modalitaRegistrazione = false;
 
-        // UI Form Switch
         document.getElementById('link-switch').onclick = (e) => {
             e.preventDefault();
             modalitaRegistrazione = !modalitaRegistrazione;
@@ -334,10 +279,9 @@
             }
         };
 
-        chiudiModalAuth.onclick = () => { modalAuthContainer.style.display = 'none'; };
-        chiudiModalSeg.onclick = () => { modalSegnalazioneContainer.style.display = 'none'; };
+        document.getElementById('chiudi-modal-auth').onclick = () => modalAuthContainer.style.display = 'none';
+        document.getElementById('chiudi-modal-seg').onclick = () => modalSegnalazioneContainer.style.display = 'none';
 
-        // Recupero Password
         document.getElementById('link-recupero-password').onclick = (e) => {
             e.preventDefault();
             let emailUtente = document.getElementById('auth-email').value || prompt("Inserisci la tua email:");
@@ -345,16 +289,15 @@
             auth.sendPasswordResetEmail(emailUtente).then(() => alert("📧 Link inviato!")).catch(err => alert("Errore: " + err.message));
         };
 
-        // Login / Registrazione
-        formAuth.onsubmit = (e) => {
+        // --- AUTH E RUOLI ---
+        document.getElementById('form-auth').onsubmit = (e) => {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
 
             if (modalitaRegistrazione) {
                 const nome = document.getElementById('auth-nome').value;
-                const profilo = document.getElementById('auth-profilo').value; // Ora limitato solo a Cittadino e Volontario
-
+                const profilo = document.getElementById('auth-profilo').value; 
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         return userCredential.user.updateProfile({ displayName: `${nome}` })
@@ -368,31 +311,22 @@
         };
 
         document.getElementById('btn-google-auth').onclick = () => auth.signInWithPopup(provider);
+        document.getElementById('btn-logout-form').onclick = () => { if(confirm("Scollegare l'account?")) { auth.signOut(); modalSegnalazioneContainer.style.display = 'none'; } };
 
-        document.getElementById('btn-logout-form').onclick = () => {
-            if(confirm("Vuoi scollegare l'account operativo?")) { auth.signOut(); modalSegnalazioneContainer.style.display = 'none'; }
-        };
-
-        // --- GESTIONE STATO AUTENTICAZIONE E RUOLI ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 modalAuthContainer.style.display = 'none';
-                
-                // Recupero ruolo dal database e sblocco funzioni interfaccia
                 db.collection('utenti').doc(user.uid).get().then(doc => {
-                    ruoloUtenteAttuale = (doc.exists && doc.data().ruolo) ? doc.data().ruolo : 'Cittadino / In Attesa';
-                    
-                    const nomeVisualizzato = user.displayName ? user.displayName : 'Utente';
-                    btnAuth.innerHTML = `👤 ${nomeVisualizzato} - Inserisci Avvistamento`;
+                    ruoloUtenteAttuale = (doc.exists && doc.data().ruolo) ? doc.data().ruolo : 'Cittadino';
+                    btnAuth.innerHTML = `👤 ${user.displayName || 'Utente'} - Segnala`;
                     btnAuth.style.backgroundColor = '#28a745'; 
                     btnAuth.onclick = () => modalSegnalazioneContainer.style.display = 'flex';
 
-                    // Mostra i tasti speciali per i Coordinatori (sbloccati solo via Database dai proprietari)
                     btnCoordProv.style.display = (ruoloUtenteAttuale === 'Coordinatore Provinciale') ? 'block' : 'none';
                     btnCoordReg.style.display = (ruoloUtenteAttuale === 'Coordinatore Regionale') ? 'block' : 'none';
                 });
             } else {
-                ruoloUtenteAttuale = 'Cittadino / In Attesa';
+                ruoloUtenteAttuale = 'Cittadino';
                 btnAuth.innerHTML = '🔑 Accedi / Registrati';
                 btnAuth.style.backgroundColor = '#1a73e8'; 
                 btnCoordProv.style.display = 'none';
@@ -402,12 +336,11 @@
             }
         });
 
-        // --- MAPPA E LAYER ---
+        // --- MAPPA ---
         var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', { maxZoom: 19 });
         var mappaTopografica = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
         var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
         var map = L.map('mappa', { center: [41.8719, 12.5674], zoom: 6, layers: [mappaScura], zoomControl: false });
-        
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         L.control.layers({ "Modalità Scura": mappaScura, "Vista Satellitare": mappaSatellitare, "Mappa Topografica": mappaTopografica }, null, { position: 'topright' }).addTo(map);
 
@@ -418,31 +351,31 @@
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // --- FUNZIONE DI ELIMINAZIONE GLOBALE PER COORDINATORI ---
+        // --- CONVERSIONE DECIMALE A DMS ---
+        function convertiInDMS(lat, lng) {
+            const toDMS = (deg) => {
+                let d = Math.floor(deg);
+                let minfloat = (deg - d) * 60;
+                let m = Math.floor(minfloat);
+                let secfloat = (minfloat - m) * 60;
+                let s = secfloat.toFixed(1);
+                return `${d}° ${m}' ${s}"`;
+            };
+            return `${toDMS(lat)} N | ${toDMS(lng)} E`;
+        }
+
         window.eliminaSegnalazione = async function(id) {
-            const motivo = prompt("⚠️ AZIONE DI MODERAZIONE\nStai chiudendo/eliminando questo evento.\nInserisci obbligatoriamente il motivo (es. Falso allarme, Incendio domato):");
-            
+            const motivo = prompt("⚠️ AZIONE DI MODERAZIONE\nInserisci il motivo della chiusura (es. Falso allarme, Incendio domato):");
             if (motivo !== null) {
-                if (motivo.trim() === "") { alert("❌ Devi inserire un motivo per proseguire!"); return; }
+                if (motivo.trim() === "") { alert("❌ Devi inserire un motivo!"); return; }
                 try {
-                    // Logga il motivo e chi l'ha chiuso per fini operativi (Archivio Storico)
-                    await db.collection('segnalazioni_chiuse').doc(id).set({
-                        motivo: motivo,
-                        chiusaDa: auth.currentUser ? auth.currentUser.email : 'Sconosciuto',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // Cancella l'evento dalla mappa live
+                    await db.collection('segnalazioni_chiuse').doc(id).set({ motivo: motivo, chiusaDa: auth.currentUser ? auth.currentUser.email : 'Sconosciuto', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                     await db.collection('segnalazioni').doc(id).delete();
-                    alert("✅ Segnalazione chiusa e rimossa dalla mappa in tempo reale.");
-                } catch (error) {
-                    alert("Errore: " + error.message);
-                }
+                } catch (error) { alert("Errore: " + error.message); }
             }
         };
 
-        // --- FETCH IN TEMPO REALE DAL DATABASE (REAL-TIME LISTENER) ---
-        const layerSegnalazioniReali = {}; // Salva i marker attivi per poterli togliere
+        const layerSegnalazioniReali = {}; 
         
         db.collection('segnalazioni').onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
@@ -454,7 +387,6 @@
 
                     let colore = data.stato === "validata" ? '#33cc33' : '#ffcc00';
                     let riempimento = data.stato === "validata" ? '#2eb82e' : '#e6b800';
-                    let titoloPop = data.stato === "validata" ? 'Segnalazione Validata' : 'Da Verificare';
 
                     const marker = L.circle([data.coordinateDecimali.latitudine, data.coordinateDecimali.longitudine], {
                         color: colore, fillColor: riempimento, fillOpacity: 0.9, radius: 1500
@@ -462,23 +394,33 @@
 
                     marker.bindPopup("Caricamento...");
                     marker.on('popupopen', function() {
-                        let popupHTML = `
-    <strong>${titoloPop}</strong><br>
-    <b>Vegetazione:</b> ${data.vegetazione}<br>
-    <b>Note:</b> ${data.note || 'Nessuna nota'}<br>
-    <em>Inserita da: ${data.mittenteNome}</em><br>
-    
-    <div style="margin-top: 8px; text-align: center;">
-        <img src="${data.fotoUrl}" alt="Foto Incendio" style="width: 100%; max-width: 220px; height: auto; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 1px solid #444;">
-    </div>
-    
-    <a href="${data.fotoUrl}" target="_blank" style="display: block; text-align: center; margin-top: 6px; color: #1a73e8; font-size: 12px; font-weight: bold; text-decoration: none;">🔍 Apri a schermo intero</a>
-`;
                         
-                        // Se l'utente attuale è un coordinatore, genera in esclusiva il bottone di eliminazione nel popup
+                        // Creazione Layout Popup basato sullo screenshot
+                        let bannerHTML = data.stato === "validata" 
+                            ? `<div style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; padding: 6px; text-align: center; font-weight: bold; margin-bottom: 12px; font-size: 11px; letter-spacing: 0.5px;">✅ VALIDATA OPERATIVAMENTE</div>`
+                            : `<div style="background-color: #fff3cd; color: #d39e00; border: 1px solid #ffeeba; border-radius: 4px; padding: 6px; text-align: center; font-weight: bold; margin-bottom: 12px; font-size: 11px; letter-spacing: 0.5px;">⚠️ IN ATTESA DI VALIDAZIONE OPERATIVA</div>`;
+
+                        let coordinateDMS = convertiInDMS(data.coordinateDecimali.latitudine, data.coordinateDecimali.longitudine);
+                        let noteHTML = data.note ? data.note.toUpperCase() : "NESSUNA NOTA AGGIUNTIVA";
+
+                        let popupHTML = `
+                            ${bannerHTML}
+                            <div style="font-size: 13px; line-height: 1.6; color: #222;">
+                                <b>Coordinate DMS:</b> ${coordinateDMS}<br>
+                                <b>Vegetazione:</b> ${data.vegetazione}<br>
+                                <b>Lat/Lon Decimale:</b> ${data.coordinateDecimali.latitudine.toFixed(6)}, ${data.coordinateDecimali.longitudine.toFixed(6)}<br>
+                                <b>Note:</b> ${noteHTML}<br>
+                                <b>Inviato da:</b> ${data.mittenteNome}<br>
+                            </div>
+                            
+                            <div style="margin-top: 12px; text-align: center;">
+                                <img src="${data.fotoUrl}" alt="Foto Avvistamento" style="width: 100%; max-width: 260px; border-radius: 4px; object-fit: cover;">
+                            </div>
+                        `;
+                        
                         if (ruoloUtenteAttuale === 'Coordinatore Provinciale' || ruoloUtenteAttuale === 'Coordinatore Regionale') {
                             popupHTML += `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #ccc;">
-                                <button style="width:100%; padding:8px; background:#dc3545; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="window.eliminaSegnalazione('${id}')">🗑️ Chiudi/Elimina Segnalazione</button>
+                                <button style="width:100%; padding:8px; background:#dc3545; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.eliminaSegnalazione('${id}')">🗑️ Chiudi / Elimina Evento</button>
                             </div>`;
                         }
                         this.setPopupContent(popupHTML);
@@ -496,7 +438,6 @@
                         const rimosso = layerSegnalazioniReali[id];
                         if(rimosso.options.color === '#33cc33') totaleValidate = Math.max(0, totaleValidate - 1);
                         else totaleDaVerificare = Math.max(0, totaleDaVerificare - 1);
-                        
                         map.removeLayer(rimosso);
                         delete layerSegnalazioniReali[id];
                         aggiornaContatori();
@@ -505,10 +446,10 @@
             });
         });
 
-        // --- INVIO SEGNALAZIONE (CON CALCOLO GERARCHIA) ---
-        const btnInviaSeg = document.getElementById('btn-invia-seg');
-        formSegnalazione.onsubmit = async (e) => {
+        // --- INVIO SEGNALAZIONE ---
+        document.getElementById('form-segnalazione').onsubmit = async (e) => {
             e.preventDefault();
+            const btnInviaSeg = document.getElementById('btn-invia-seg');
             const file = document.getElementById('seg-foto').files[0];
             if (!file) return;
 
@@ -516,31 +457,17 @@
             btnInviaSeg.innerText = "Caricamento in corso...";
 
             try {
-                // Calcoli GPS
-                const latG = parseFloat(document.getElementById('lat-gradi').value);
-                const latP = parseFloat(document.getElementById('lat-primi').value);
-                const latS = parseFloat(document.getElementById('lat-secondi').value);
-                const latDecimale = latG + (latP / 60) + (latS / 3600);
+                const latDecimale = parseFloat(document.getElementById('lat-gradi').value) + (parseFloat(document.getElementById('lat-primi').value) / 60) + (parseFloat(document.getElementById('lat-secondi').value) / 3600);
+                const lonDecimale = parseFloat(document.getElementById('lon-gradi').value) + (parseFloat(document.getElementById('lon-primi').value) / 60) + (parseFloat(document.getElementById('lon-secondi').value) / 3600);
 
-                const lonG = parseFloat(document.getElementById('lon-gradi').value);
-                const lonP = parseFloat(document.getElementById('lon-primi').value);
-                const lonS = parseFloat(document.getElementById('lon-secondi').value);
-                const lonDecimale = lonG + (lonP / 60) + (lonS / 3600);
+                let statoAssegnato = "in attesa"; 
+                if (ruoloUtenteAttuale === 'Volontario' || ruoloUtenteAttuale.includes('Coordinatore')) { statoAssegnato = "validata"; }
 
-                // Determina lo stato iniziale in base al ruolo di chi invia
-                let statoAssegnato = "in attesa"; // Default (Cittadini)
-                if (ruoloUtenteAttuale === 'Volontario' || ruoloUtenteAttuale.includes('Coordinatore')) {
-                    statoAssegnato = "validata"; // Promozione automatica per personale operativo
-                }
-
-                const formData = new FormData();
-                formData.append('image', file);
+                const formData = new FormData(); formData.append('image', file);
                 const rispostaImgBB = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const datiImgBB = await rispostaImgBB.json();
-                
                 if (!datiImgBB.success) throw new Error("Errore ImgBB");
 
-                // Scrittura su Firestore (genererà l'evento e piazzerà in automatico il marker per tutti)
                 await db.collection('segnalazioni').add({
                     coordinateDecimali: { latitudine: latDecimale, longitudine: lonDecimale },
                     vegetazione: document.getElementById('seg-vegetazione').value,
@@ -552,20 +479,15 @@
                 });
 
                 map.setView([latDecimale, lonDecimale], 11);
-
-                alert("✅ Avvistamento registrato. Stato iniziale: " + statoAssegnato.toUpperCase());
-                formSegnalazione.reset();
+                alert("✅ Avvistamento registrato con successo.");
+                document.getElementById('form-segnalazione').reset();
                 modalSegnalazioneContainer.style.display = 'none';
 
-            } catch (error) {
-                alert("Errore di caricamento: " + error.message);
-            } finally {
-                btnInviaSeg.disabled = false;
-                btnInviaSeg.innerText = "Invia Segnalazione";
-            }
+            } catch (error) { alert("Errore di caricamento: " + error.message); } 
+            finally { btnInviaSeg.disabled = false; btnInviaSeg.innerText = "Invia Segnalazione"; }
         };
 
-        // --- FETCH DATI SATELLITARI (NASA) ---
+        // --- NASA ---
         const urlNasa = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://firms.modaps.eosdis.nasa.gov/api/country/csv/6c7f29542d837e182b0bf7292cb52b99/VIIRS_SNPP_NRT/ITA/1')}`;
         fetch(urlNasa).then(response => response.text()).then(datiCsv => {
             const righe = datiCsv.trim().split('\n');
