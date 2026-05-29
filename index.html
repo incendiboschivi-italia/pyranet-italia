@@ -31,6 +31,8 @@
             top: 20px;
             left: 20px;
             z-index: 1000;
+            <button id="btn-coord-prov" class="btn-coordinatore" style="display: none;">⚖️ Pannello Coordinatore P.</button>
+            <button id="btn-coord-reg" class="btn-coordinatore" style="display: none;">⚖️ Pannello Coordinatore R.</button>
         }
 
         #btn-auth {
@@ -254,8 +256,8 @@
                 <div class="campo-form" id="gruppo-profilo" style="display: none;">
                     <label>Tipo di Profilo Operativo</label>
                     <select id="auth-profilo">
-                        <option value="Cittadino / Utente Comune">Cittadino / Utente Comune</option>
-                        <option value="Volontario Antincendio">Volontario Antincendio / Protezione Civile</option>
+                        <option value="Cittadino / In Attesa">Cittadino / In Attesa (Profilo Base)</option>
+                        <option value="Volontario">Volontario</option>
                     </select>
                 </div>
 
@@ -677,33 +679,6 @@
                 aggiornaContatori(); 
             })
             .catch(errore => console.error("Errore NASA:", errore));
-
-        // Dati di Esempio iniziali
-        const segnalazioniSimulate = [
-            { lat: 43.7695, lon: 11.2558, tipo: 'validata', nota: 'Pattuglia sul posto' }, 
-            { lat: 41.9028, lon: 12.4964, tipo: 'da_verificare', nota: 'Segnalato fumo scuro' }, 
-            { lat: 45.4642, lon: 9.1900, tipo: 'da_verificare', nota: 'Odore di bruciato' } 
-        ];
-
-        segnalazioniSimulate.forEach(segnalazione => {
-            let colore, riempimento, titoloPopup;
-
-            if (segnalazione.tipo === 'validata') {
-                colore = '#33cc33'; 
-                riempimento = '#2eb82e';
-                titoloPopup = 'Segnalazione Validata';
-                totaleValidate++;
-            } else {
-                colore = '#ffcc00'; 
-                riempimento = '#e6b800';
-                titoloPopup = 'Da Verificare';
-                totaleDaVerificare++;
-            }
-
-            L.circle([segnalazione.lat, segnalazione.lon], {
-                color: colore, fillColor: riempimento, fillOpacity: 0.9, radius: 1500
-            }).addTo(map).bindPopup(`<strong>${titoloPopup}</strong><br>Nota: ${segnalazione.nota}`);
-        });
 
         aggiornaContatori(); 
     </script>
