@@ -25,14 +25,15 @@
             letter-spacing: 1px;
         }
 
-        /* PANNELLO AUTENTICAZIONE */
+        /* PANNELLO AUTENTICAZIONE E COORDINAMENTO */
         #pannello-auth {
             position: absolute;
             top: 20px;
             left: 20px;
             z-index: 1000;
-            <button id="btn-coord-prov" class="btn-coordinatore" style="display: none;">⚖️ Pannello Coordinatore P.</button>
-            <button id="btn-coord-reg" class="btn-coordinatore" style="display: none;">⚖️ Pannello Coordinatore R.</button>
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         #btn-auth {
@@ -46,9 +47,24 @@
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0,0,0,0.5);
             transition: background-color 0.3s ease;
+            width: 100%;
         }
-
         #btn-auth:hover { opacity: 0.9; }
+
+        .btn-coordinatore {
+            display: none; 
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            background-color: #6f42c1; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .btn-coordinatore:hover { opacity: 0.9; }
 
         /* INTERFACCE MODALI (OVERLAY) */
         #modal-auth-container, #modal-segnalazione-container {
@@ -75,10 +91,7 @@
             position: relative;
         }
 
-        /* Modale più largo per le coordinate */
-        .modale-largo {
-            width: 420px;
-        }
+        .modale-largo { width: 420px; }
 
         .chiudi-modal {
             position: absolute; 
@@ -90,144 +103,59 @@
         }
         .chiudi-modal:hover { color: white; }
 
-        .campo-form {
-            margin-bottom: 14px;
-        }
-
-        .campo-form label {
-            display: block; 
-            font-size: 12px; 
-            margin-bottom: 5px; 
-            color: #bbb;
-        }
-
+        .campo-form { margin-bottom: 14px; }
+        .campo-form label { display: block; font-size: 12px; margin-bottom: 5px; color: #bbb; }
         .campo-form input, .campo-form select, .campo-form textarea {
-            width: 100%; 
-            padding: 9px; 
-            background: #2b2b2b; 
-            border: 1px solid #444; 
-            color: white; 
-            border-radius: 6px; 
-            box-sizing: border-box;
-            font-size: 14px;
+            width: 100%; padding: 9px; background: #2b2b2b; border: 1px solid #444; 
+            color: white; border-radius: 6px; box-sizing: border-box; font-size: 14px;
         }
-
         .campo-form input:focus, .campo-form select:focus, .campo-form textarea:focus {
-            border-color: #1a73e8;
-            outline: none;
+            border-color: #1a73e8; outline: none;
         }
 
-        .riga-coordinate {
-            display: flex;
-            gap: 5px;
-        }
+        .riga-coordinate { display: flex; gap: 5px; }
 
         .btn-invia {
-            width: 100%; 
-            padding: 10px; 
-            background: #1a73e8; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 5px;
+            width: 100%; padding: 10px; background: #1a73e8; color: white; 
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+            font-size: 14px; margin-top: 5px;
         }
-
         .btn-invia:hover { opacity: 0.9; }
         .btn-invia:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* PANNELLO MONITORAGGIO (SINISTRA) */
+        /* PANNELLI DX/SX */
         #pannello-monitoraggio {
-            position: absolute;
-            top: 75px; 
-            left: 20px;
-            z-index: 1000;
-            background-color: rgba(25, 25, 25, 0.9);
-            color: #ffffff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            border: 1px solid #444;
-            min-width: 280px;
+            position: absolute; top: 120px; left: 20px; z-index: 1000;
+            background-color: rgba(25, 25, 25, 0.9); color: #ffffff;
+            padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid #444; min-width: 280px;
+        }
+        #pannello-rischio {
+            position: absolute; top: 80px; right: 20px; z-index: 1000;
+            background-color: rgba(25, 25, 25, 0.9); color: #ffffff;
+            padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid #444; max-width: 280px;
         }
 
-        .voce-legenda {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-
-        .pallino {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-
+        .voce-legenda { display: flex; align-items: center; margin-bottom: 12px; font-size: 13px; }
+        .pallino { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
         .colore-nasa { background-color: #ff3300; box-shadow: 0 0 5px #ff3300; }
         .colore-validata { background-color: #33cc33; box-shadow: 0 0 5px #33cc33; }
         .colore-da-verificare { background-color: #ffcc00; box-shadow: 0 0 5px #ffcc00; }
+        .contatore { margin-left: auto; background-color: #444; padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 12px; }
 
-        .contatore {
-            margin-left: auto;
-            background-color: #444;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        /* PANNELLO INDICI DI RISCHIO (DESTRA) */
-        #pannello-rischio {
-            position: absolute;
-            top: 80px; 
-            right: 20px;
-            z-index: 1000;
-            background-color: rgba(25, 25, 25, 0.9);
-            color: #ffffff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            border: 1px solid #444;
-            max-width: 280px;
-        }
-
-        .voce-rischio {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .quadretto {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            margin-right: 12px;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
-
-        .q-verde { background-color: #28a745; }
-        .q-giallo { background-color: #ffc107; }
-        .q-rosso { background-color: #dc3545; }
-
-        .testo-rischio strong {
-            display: block;
-            margin-bottom: 2px;
-            letter-spacing: 0.5px;
-        }
+        .voce-rischio { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 12px; line-height: 1.4; }
+        .quadretto { width: 14px; height: 14px; border-radius: 3px; margin-right: 12px; margin-top: 2px; flex-shrink: 0; }
+        .q-verde { background-color: #28a745; } .q-giallo { background-color: #ffc107; } .q-rosso { background-color: #dc3545; }
+        .testo-rischio strong { display: block; margin-bottom: 2px; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
     <div id="pannello-auth">
         <button id="btn-auth">🔑 Caricamento...</button>
+        <button id="btn-coord-prov" class="btn-coordinatore">⚖️ Pannello Coordinatore P.</button>
+        <button id="btn-coord-reg" class="btn-coordinatore">⚖️ Pannello Coordinatore R.</button>
     </div>
 
     <div id="modal-auth-container">
@@ -237,7 +165,7 @@
             
             <form id="form-auth">
                 <div class="campo-form" id="gruppo-nome" style="display: none;">
-                    <label>Nome Completo</label>
+                    <label>Nome Completo / Grado</label>
                     <input type="text" id="auth-nome" placeholder="Es. Mario Rossi">
                 </div>
 
@@ -254,7 +182,7 @@
                 <a href="#" id="link-recupero-password" style="display: block; text-align: right; font-size: 12px; color: #1a73e8; text-decoration: none; margin-top: -5px; margin-bottom: 15px; font-weight: 500;">Password dimenticata?</a>
 
                 <div class="campo-form" id="gruppo-profilo" style="display: none;">
-                    <label>Tipo di Profilo Operativo</label>
+                    <label>Assegnazione Ruolo Operativo</label>
                     <select id="auth-profilo">
                         <option value="Cittadino / In Attesa">Cittadino / In Attesa (Profilo Base)</option>
                         <option value="Volontario">Volontario</option>
@@ -334,52 +262,22 @@
 
     <div id="pannello-monitoraggio">
         <h3>Monitoraggio Italia</h3>
-        <div class="voce-legenda">
-            <div class="pallino colore-nasa"></div>
-            <span>Satellite (NASA)</span>
-            <span class="contatore" id="conta-nasa">0</span>
-        </div>
-        <div class="voce-legenda">
-            <div class="pallino colore-validata"></div>
-            <span>Validata (Resp. Regionali)</span>
-            <span class="contatore" id="conta-validate">0</span>
-        </div>
-        <div class="voce-legenda">
-            <div class="pallino colore-da-verificare"></div>
-            <span>Da Verificare (Cittadini)</span>
-            <span class="contatore" id="conta-da-verificare">0</span>
-        </div>
+        <div class="voce-legenda"><div class="pallino colore-nasa"></div><span>Satellite (NASA)</span><span class="contatore" id="conta-nasa">0</span></div>
+        <div class="voce-legenda"><div class="pallino colore-validata"></div><span>Validata (Operativi)</span><span class="contatore" id="conta-validate">0</span></div>
+        <div class="voce-legenda"><div class="pallino colore-da-verificare"></div><span>In Attesa (Cittadini)</span><span class="contatore" id="conta-da-verificare">0</span></div>
     </div>
 
     <div id="pannello-rischio">
         <h3>Indici di Rischio</h3>
-        <div class="voce-rischio">
-            <div class="quadretto q-verde"></div>
-            <div class="testo-rischio">
-                <strong>BASSO</strong>
-                L'evento può essere affrontato con i mezzi ordinari. Rischio incendi boschivi.
-            </div>
-        </div>
-        <div class="voce-rischio">
-            <div class="quadretto q-giallo"></div>
-            <div class="testo-rischio">
-                <strong>MEDIO</strong>
-                Richiede una rapida ed efficiente risposta del sistema di lotta attiva. Rischio incendi boschivi.
-            </div>
-        </div>
-        <div class="voce-rischio">
-            <div class="quadretto q-rosso"></div>
-            <div class="testo-rischio">
-                <strong>ALTO</strong>
-                Richiede il massimo sforzo operativo, con possibile impiego della flotta aerea statale. Rischio incendi boschivi.
-            </div>
-        </div>
+        <div class="voce-rischio"><div class="quadretto q-verde"></div><div class="testo-rischio"><strong>BASSO</strong>L'evento può essere affrontato con i mezzi ordinari.</div></div>
+        <div class="voce-rischio"><div class="quadretto q-giallo"></div><div class="testo-rischio"><strong>MEDIO</strong>Richiede una rapida ed efficiente risposta.</div></div>
+        <div class="voce-rischio"><div class="quadretto q-rosso"></div><div class="testo-rischio"><strong>ALTO</strong>Richiede il massimo sforzo operativo statale.</div></div>
     </div>
 
     <div id="mappa"></div>
 
     <script>
-        // --- CONFIGURAZIONE REALE FIREBASE E API ---
+        // --- CONFIGURAZIONE E INIZIALIZZAZIONE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCtl7kaMqa376Y_DoRESuQVW88M1VE9Jxc",
             authDomain: "pyranet-italia.firebaseapp.com",
@@ -388,62 +286,50 @@
             messagingSenderId: "8840472059",
             appId: "1:8840472059:web:b77090fa31f154d390575e"
         };
-
-        // CHIAVE API IMGBB ATTIVATA
         const IMGBB_API_KEY = "843e032e57002e06c0555d3742be5738";
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         const provider = new firebase.auth.GoogleAuthProvider();
-        
         auth.languageCode = 'it';
         
-        // Elementi DOM Autenticazione e Modali
+        let ruoloUtenteAttuale = 'Cittadino / In Attesa'; // Default Globale
+
+        // Elementi DOM
         const btnAuth = document.getElementById('btn-auth');
+        const btnCoordProv = document.getElementById('btn-coord-prov');
+        const btnCoordReg = document.getElementById('btn-coord-reg');
         const modalAuthContainer = document.getElementById('modal-auth-container');
         const modalSegnalazioneContainer = document.getElementById('modal-segnalazione-container');
-        
         const chiudiModalAuth = document.getElementById('chiudi-modal-auth');
         const chiudiModalSeg = document.getElementById('chiudi-modal-seg');
-        
         const formAuth = document.getElementById('form-auth');
         const formSegnalazione = document.getElementById('form-segnalazione');
         
-        const linkSwitch = document.getElementById('link-switch');
-        const testoSwitch = document.getElementById('testo-switch');
-        const authTitolo = document.getElementById('auth-titolo');
-        const btnInviaAuth = document.getElementById('btn-invia-auth');
-        const btnInviaSeg = document.getElementById('btn-invia-seg');
-        const gruppoNome = document.getElementById('gruppo-nome');
-        const gruppoProfilo = document.getElementById('gruppo-profilo');
-        const linkRecuperoPassword = document.getElementById('link-recupero-password');
-        const btnGoogleAuth = document.getElementById('btn-google-auth');
-        const btnLogoutForm = document.getElementById('btn-logout-form');
-
         let modalitaRegistrazione = false;
 
-        // Gestione Interfaccia Modal Autenticazione
-        linkSwitch.onclick = (e) => {
+        // UI Form Switch
+        document.getElementById('link-switch').onclick = (e) => {
             e.preventDefault();
             modalitaRegistrazione = !modalitaRegistrazione;
             if (modalitaRegistrazione) {
-                authTitolo.innerText = "Registrazione PyraNet";
-                btnInviaAuth.innerText = "Registrati";
-                testoSwitch.innerText = "Hai già un account? ";
-                linkSwitch.innerText = "Accedi qui";
-                gruppoNome.style.display = "block";
-                gruppoProfilo.style.display = "block";
-                linkRecuperoPassword.style.display = "none";
+                document.getElementById('auth-titolo').innerText = "Registrazione PyraNet";
+                document.getElementById('btn-invia-auth').innerText = "Registrati";
+                document.getElementById('testo-switch').innerText = "Hai già un account? ";
+                document.getElementById('link-switch').innerText = "Accedi qui";
+                document.getElementById('gruppo-nome').style.display = "block";
+                document.getElementById('gruppo-profilo').style.display = "block";
+                document.getElementById('link-recupero-password').style.display = "none";
                 document.getElementById('auth-nome').required = true;
             } else {
-                authTitolo.innerText = "Accedi a PyraNet";
-                btnInviaAuth.innerText = "Accedi";
-                testoSwitch.innerText = "Non hai un account? ";
-                linkSwitch.innerText = "Registrati qui";
-                gruppoNome.style.display = "none";
-                gruppoProfilo.style.display = "none";
-                linkRecuperoPassword.style.display = "block";
+                document.getElementById('auth-titolo').innerText = "Accedi a PyraNet";
+                document.getElementById('btn-invia-auth').innerText = "Accedi";
+                document.getElementById('testo-switch').innerText = "Non hai un account? ";
+                document.getElementById('link-switch').innerText = "Registrati qui";
+                document.getElementById('gruppo-nome').style.display = "none";
+                document.getElementById('gruppo-profilo').style.display = "none";
+                document.getElementById('link-recupero-password').style.display = "block";
                 document.getElementById('auth-nome').required = false;
             }
         };
@@ -452,27 +338,14 @@
         chiudiModalSeg.onclick = () => { modalSegnalazioneContainer.style.display = 'none'; };
 
         // Recupero Password
-        linkRecuperoPassword.onclick = (e) => {
+        document.getElementById('link-recupero-password').onclick = (e) => {
             e.preventDefault();
-            let emailUtente = document.getElementById('auth-email').value;
-            if (!emailUtente) {
-                emailUtente = prompt("Inserisci il tuo indirizzo email per ricevere il link di ripristino della password:");
-            } else {
-                emailUtente = prompt("Inviare l'email di recupero password a questo indirizzo?", emailUtente);
-            }
-
-            if (!emailUtente) return; 
-
-            auth.sendPasswordResetEmail(emailUtente)
-                .then(() => alert("📧 Link di ripristino inviato! Controlla la tua casella (anche nello Spam)."))
-                .catch((error) => {
-                    if (error.code === 'auth/invalid-email') alert("⚠️ L'indirizzo email inserito non è valido.");
-                    else if (error.code === 'auth/user-not-found' || error.code === 'auth/user-not-found-protection') alert("❌ Account inesistente.");
-                    else alert("Errore: " + error.message);
-                });
+            let emailUtente = document.getElementById('auth-email').value || prompt("Inserisci la tua email:");
+            if (!emailUtente) return;
+            auth.sendPasswordResetEmail(emailUtente).then(() => alert("📧 Link inviato!")).catch(err => alert("Errore: " + err.message));
         };
 
-        // Invio Modulo Login/Registrazione + Scrittura su Firestore Collezione "utenti"
+        // Login / Registrazione
         formAuth.onsubmit = (e) => {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
@@ -480,107 +353,159 @@
 
             if (modalitaRegistrazione) {
                 const nome = document.getElementById('auth-nome').value;
-                const profilo = document.getElementById('auth-profilo').value;
+                const profilo = document.getElementById('auth-profilo').value; // Ora limitato solo a Cittadino e Volontario
 
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
-                        return userCredential.user.updateProfile({
-                            displayName: `${nome} (${profilo})`
-                        }).then(() => {
-                            return db.collection('utenti').doc(userCredential.user.uid).set({
-                                email: email,
-                                ruolo: profilo
-                            });
-                        });
+                        return userCredential.user.updateProfile({ displayName: `${nome}` })
+                        .then(() => db.collection('utenti').doc(userCredential.user.uid).set({ email: email, ruolo: profilo }));
                     })
-                    .then(() => alert("Registrazione completata con successo!"))
-                    .catch((error) => {
-                        if (error.code === 'auth/email-already-in-use') alert("⚠️ Questa email è già registrata.");
-                        else alert("Impossibile completare la registrazione: " + error.message);
-                    });
+                    .then(() => alert("Registrazione completata!"))
+                    .catch((error) => alert("Errore: " + error.message));
             } else {
-                auth.signInWithEmailAndPassword(email, password)
-                    .catch((error) => alert("Credenziali errate o problema di connessione: " + error.message));
+                auth.signInWithEmailAndPassword(email, password).catch(err => alert("Errore: " + err.message));
             }
         };
 
-        // Login Google
-        btnGoogleAuth.onclick = () => {
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Errore di accesso. Verifica i provider autorizzati su Firebase.");
-            });
+        document.getElementById('btn-google-auth').onclick = () => auth.signInWithPopup(provider);
+
+        document.getElementById('btn-logout-form').onclick = () => {
+            if(confirm("Vuoi scollegare l'account operativo?")) { auth.signOut(); modalSegnalazioneContainer.style.display = 'none'; }
         };
 
-        // Logout dal form di Segnalazione
-        btnLogoutForm.onclick = () => {
-            if(confirm("Sei sicuro di voler scollegare il tuo account operativo?")) {
-                auth.signOut();
-                modalSegnalazioneContainer.style.display = 'none';
-            }
-        };
-
-        // Stato Autenticazione
+        // --- GESTIONE STATO AUTENTICAZIONE E RUOLI ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 modalAuthContainer.style.display = 'none';
-                const nomeVisualizzato = user.displayName ? user.displayName.split(' (')[0] : 'Utente';
-                btnAuth.innerHTML = `👤 ${nomeVisualizzato} - Inserisci Segnalazione`;
-                btnAuth.style.backgroundColor = '#28a745'; 
-                btnAuth.onclick = () => modalSegnalazioneContainer.style.display = 'flex';
+                
+                // Recupero ruolo dal database e sblocco funzioni interfaccia
+                db.collection('utenti').doc(user.uid).get().then(doc => {
+                    ruoloUtenteAttuale = (doc.exists && doc.data().ruolo) ? doc.data().ruolo : 'Cittadino / In Attesa';
+                    
+                    const nomeVisualizzato = user.displayName ? user.displayName : 'Utente';
+                    btnAuth.innerHTML = `👤 ${nomeVisualizzato} - Inserisci Avvistamento`;
+                    btnAuth.style.backgroundColor = '#28a745'; 
+                    btnAuth.onclick = () => modalSegnalazioneContainer.style.display = 'flex';
+
+                    // Mostra i tasti speciali per i Coordinatori (sbloccati solo via Database dai proprietari)
+                    btnCoordProv.style.display = (ruoloUtenteAttuale === 'Coordinatore Provinciale') ? 'block' : 'none';
+                    btnCoordReg.style.display = (ruoloUtenteAttuale === 'Coordinatore Regionale') ? 'block' : 'none';
+                });
             } else {
+                ruoloUtenteAttuale = 'Cittadino / In Attesa';
                 btnAuth.innerHTML = '🔑 Accedi / Registrati';
                 btnAuth.style.backgroundColor = '#1a73e8'; 
+                btnCoordProv.style.display = 'none';
+                btnCoordReg.style.display = 'none';
                 modalSegnalazioneContainer.style.display = 'none';
                 btnAuth.onclick = () => modalAuthContainer.style.display = 'flex';
             }
         });
 
-
-        // --- LOGICA MAPPA E CONVERSIONE DATI GPS ---
+        // --- MAPPA E LAYER ---
         var mappaScura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', { maxZoom: 19 });
         var mappaTopografica = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
         var mappaSatellitare = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-
-        var map = L.map('mappa', {
-            center: [41.8719, 12.5674],
-            zoom: 6,
-            layers: [mappaScura],
-            zoomControl: false
-        });
-
+        var map = L.map('mappa', { center: [41.8719, 12.5674], zoom: 6, layers: [mappaScura], zoomControl: false });
+        
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         L.control.layers({ "Modalità Scura": mappaScura, "Vista Satellitare": mappaSatellitare, "Mappa Topografica": mappaTopografica }, null, { position: 'topright' }).addTo(map);
 
-        let totaleNasa = 0;
-        let totaleValidate = 0;
-        let totaleDaVerificare = 0;
-
+        let totaleNasa = 0, totaleValidate = 0, totaleDaVerificare = 0;
         function aggiornaContatori() {
             document.getElementById('conta-nasa').innerText = totaleNasa;
             document.getElementById('conta-validate').innerText = totaleValidate;
             document.getElementById('conta-da-verificare').innerText = totaleDaVerificare;
         }
 
-        // Gestione Invio Modulo Segnalazione (Upload ImgBB + Scrittura Firestore DB)
+        // --- FUNZIONE DI ELIMINAZIONE GLOBALE PER COORDINATORI ---
+        window.eliminaSegnalazione = async function(id) {
+            const motivo = prompt("⚠️ AZIONE DI MODERAZIONE\nStai chiudendo/eliminando questo evento.\nInserisci obbligatoriamente il motivo (es. Falso allarme, Incendio domato):");
+            
+            if (motivo !== null) {
+                if (motivo.trim() === "") { alert("❌ Devi inserire un motivo per proseguire!"); return; }
+                try {
+                    // Logga il motivo e chi l'ha chiuso per fini operativi (Archivio Storico)
+                    await db.collection('segnalazioni_chiuse').doc(id).set({
+                        motivo: motivo,
+                        chiusaDa: auth.currentUser ? auth.currentUser.email : 'Sconosciuto',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Cancella l'evento dalla mappa live
+                    await db.collection('segnalazioni').doc(id).delete();
+                    alert("✅ Segnalazione chiusa e rimossa dalla mappa in tempo reale.");
+                } catch (error) {
+                    alert("Errore: " + error.message);
+                }
+            }
+        };
+
+        // --- FETCH IN TEMPO REALE DAL DATABASE (REAL-TIME LISTENER) ---
+        const layerSegnalazioniReali = {}; // Salva i marker attivi per poterli togliere
+        
+        db.collection('segnalazioni').onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                const data = change.doc.data();
+                const id = change.doc.id;
+
+                if (change.type === "added" || change.type === "modified") {
+                    if (layerSegnalazioniReali[id]) { map.removeLayer(layerSegnalazioniReali[id]); }
+
+                    let colore = data.stato === "validata" ? '#33cc33' : '#ffcc00';
+                    let riempimento = data.stato === "validata" ? '#2eb82e' : '#e6b800';
+                    let titoloPop = data.stato === "validata" ? 'Segnalazione Validata' : 'Da Verificare';
+
+                    const marker = L.circle([data.coordinateDecimali.latitudine, data.coordinateDecimali.longitudine], {
+                        color: colore, fillColor: riempimento, fillOpacity: 0.9, radius: 1500
+                    }).addTo(map);
+
+                    marker.bindPopup("Caricamento...");
+                    marker.on('popupopen', function() {
+                        let popupHTML = `<strong>${titoloPop}</strong><br>Vegetazione: ${data.vegetazione}<br>Note: ${data.note || ''}<br><em>Inserita da: ${data.mittenteNome}</em><br><a href="${data.fotoUrl}" target="_blank">Vedi Foto Avvistamento</a>`;
+                        
+                        // Se l'utente attuale è un coordinatore, genera in esclusiva il bottone di eliminazione nel popup
+                        if (ruoloUtenteAttuale === 'Coordinatore Provinciale' || ruoloUtenteAttuale === 'Coordinatore Regionale') {
+                            popupHTML += `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #ccc;">
+                                <button style="width:100%; padding:8px; background:#dc3545; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="window.eliminaSegnalazione('${id}')">🗑️ Chiudi/Elimina Segnalazione</button>
+                            </div>`;
+                        }
+                        this.setPopupContent(popupHTML);
+                    });
+
+                    layerSegnalazioniReali[id] = marker;
+                    
+                    if (data.stato === "validata") totaleValidate++;
+                    else totaleDaVerificare++;
+                    aggiornaContatori();
+                }
+
+                if (change.type === "removed") {
+                    if (layerSegnalazioniReali[id]) {
+                        const rimosso = layerSegnalazioniReali[id];
+                        if(rimosso.options.color === '#33cc33') totaleValidate = Math.max(0, totaleValidate - 1);
+                        else totaleDaVerificare = Math.max(0, totaleDaVerificare - 1);
+                        
+                        map.removeLayer(rimosso);
+                        delete layerSegnalazioniReali[id];
+                        aggiornaContatori();
+                    }
+                }
+            });
+        });
+
+        // --- INVIO SEGNALAZIONE (CON CALCOLO GERARCHIA) ---
+        const btnInviaSeg = document.getElementById('btn-invia-seg');
         formSegnalazione.onsubmit = async (e) => {
             e.preventDefault();
-
-            if (IMGBB_API_KEY === "") {
-                alert("Errore Configurazione: Manca la chiave API di ImgBB.");
-                return;
-            }
-
             const file = document.getElementById('seg-foto').files[0];
-            if (!file) {
-                alert("Devi allegare una fotografia dell'incendio per procedere.");
-                return;
-            }
+            if (!file) return;
 
             btnInviaSeg.disabled = true;
-            btnInviaSeg.innerText = "Caricamento foto e dati in corso...";
+            btnInviaSeg.innerText = "Caricamento in corso...";
 
             try {
-                // 1. Calcolo conversioni DMS -> Decimale
+                // Calcoli GPS
                 const latG = parseFloat(document.getElementById('lat-gradi').value);
                 const latP = parseFloat(document.getElementById('lat-primi').value);
                 const latS = parseFloat(document.getElementById('lat-secondi').value);
@@ -591,96 +516,58 @@
                 const lonS = parseFloat(document.getElementById('lon-secondi').value);
                 const lonDecimale = lonG + (lonP / 60) + (lonS / 3600);
 
-                const vegetazione = document.getElementById('seg-vegetazione').value;
-                const note = document.getElementById('seg-note').value;
-                const nomeCompleto = auth.currentUser ? auth.currentUser.displayName : 'Sconosciuto';
-                const emailUtente = auth.currentUser ? auth.currentUser.email : '';
-
-                // 2. Upload file su ImgBB (Completamente gratuito)
-                const formData = new FormData();
-                formData.append('image', file);
-
-                const rispostaImgBB = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const datiImgBB = await rispostaImgBB.json();
-
-                if (!datiImgBB.success) {
-                    throw new Error("I server di ImgBB hanno rifiutato l'immagine.");
+                // Determina lo stato iniziale in base al ruolo di chi invia
+                let statoAssegnato = "in attesa"; // Default (Cittadini)
+                if (ruoloUtenteAttuale === 'Volontario' || ruoloUtenteAttuale.includes('Coordinatore')) {
+                    statoAssegnato = "validata"; // Promozione automatica per personale operativo
                 }
 
-                const urlFoto = datiImgBB.data.url;
+                const formData = new FormData();
+                formData.append('image', file);
+                const rispostaImgBB = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                const datiImgBB = await rispostaImgBB.json();
+                
+                if (!datiImgBB.success) throw new Error("Errore ImgBB");
 
-                // 3. Scrittura Documento su Firestore
+                // Scrittura su Firestore (genererà l'evento e piazzerà in automatico il marker per tutti)
                 await db.collection('segnalazioni').add({
-                    coordinateDMS: {
-                        latitudine: `${latG}° ${latP}' ${latS}" N`,
-                        longitudine: `${lonG}° ${lonP}' ${lonS}" E`
-                    },
-                    coordinateDecimali: {
-                        latitudine: latDecimale,
-                        longitudine: lonDecimale
-                    },
-                    vegetazione: vegetazione,
-                    note: note,
-                    fotoUrl: urlFoto,
-                    mittenteNome: nomeCompleto,
-                    mittenteEmail: emailUtente,
-                    stato: "in attesa",
+                    coordinateDecimali: { latitudine: latDecimale, longitudine: lonDecimale },
+                    vegetazione: document.getElementById('seg-vegetazione').value,
+                    note: document.getElementById('seg-note').value,
+                    fotoUrl: datiImgBB.data.url,
+                    mittenteNome: auth.currentUser ? auth.currentUser.displayName : 'Sconosciuto',
+                    stato: statoAssegnato, 
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // 4. Plot Istantaneo Mappa Frontend
-                L.circle([latDecimale, lonDecimale], {
-                    color: '#ffcc00', fillColor: '#e6b800', fillOpacity: 0.9, radius: 1500
-                }).addTo(map).bindPopup(`<strong>Nuova Segnalazione (Da Verificare)</strong><br>Vegetazione: ${vegetazione}<br>Note: ${note || 'Nessuna nota aggiuntiva.'}<br><em>Inserita da: ${nomeCompleto}</em><br><a href="${urlFoto}" target="_blank">Vedi Foto Avvistamento</a>`);
-
-                totaleDaVerificare++;
-                aggiornaContatori();
                 map.setView([latDecimale, lonDecimale], 11);
 
-                alert("✅ Trasmissione completata! L'avvistamento è stato protocollato e la foto caricata correttamente.");
-                
+                alert("✅ Avvistamento registrato. Stato iniziale: " + statoAssegnato.toUpperCase());
                 formSegnalazione.reset();
                 modalSegnalazioneContainer.style.display = 'none';
 
             } catch (error) {
-                console.error("Errore durante l'invio:", error);
-                alert("Errore di rete o di caricamento: " + error.message);
+                alert("Errore di caricamento: " + error.message);
             } finally {
                 btnInviaSeg.disabled = false;
                 btnInviaSeg.innerText = "Invia Segnalazione";
             }
         };
 
-        // Recupero Moduli NASA
-        const apiKeyNASA = '6c7f29542d837e182b0bf7292cb52b99';
-        const urlNasaOriginale = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${apiKeyNASA}/VIIRS_SNPP_NRT/ITA/1`;
-        const urlNasa = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlNasaOriginale)}`;
-
-        fetch(urlNasa)
-            .then(response => response.text())
-            .then(datiCsv => {
-                const righe = datiCsv.trim().split('\n');
-                for (let i = 1; i < righe.length; i++) {
-                    const colonne = righe[i].split(',');
-                    const lat = parseFloat(colonne[1]);
-                    const lon = parseFloat(colonne[2]);
-                    
-                    if (!isNaN(lat) && !isNaN(lon)) {
-                        L.circle([lat, lon], {
-                            color: '#ff3300', fillColor: '#ff3300', fillOpacity: 0.8, radius: 1000
-                        }).addTo(map).bindPopup(`<strong>Rilevamento Satellite</strong><br>Fonte: NASA FIRMS`);
-                        totaleNasa++; 
-                    }
+        // --- FETCH DATI SATELLITARI (NASA) ---
+        const urlNasa = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://firms.modaps.eosdis.nasa.gov/api/country/csv/6c7f29542d837e182b0bf7292cb52b99/VIIRS_SNPP_NRT/ITA/1')}`;
+        fetch(urlNasa).then(response => response.text()).then(datiCsv => {
+            const righe = datiCsv.trim().split('\n');
+            for (let i = 1; i < righe.length; i++) {
+                const col = righe[i].split(','); const lat = parseFloat(col[1]); const lon = parseFloat(col[2]);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    L.circle([lat, lon], { color: '#ff3300', fillColor: '#ff3300', fillOpacity: 0.8, radius: 1000 }).addTo(map).bindPopup(`<strong>Rilevamento Satellite</strong><br>NASA FIRMS`);
+                    totaleNasa++; 
                 }
-                aggiornaContatori(); 
-            })
-            .catch(errore => console.error("Errore NASA:", errore));
+            }
+            aggiornaContatori(); 
+        }).catch(err => console.error(err));
 
-        aggiornaContatori(); 
     </script>
 </body>
 </html>
