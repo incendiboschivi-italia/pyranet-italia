@@ -107,6 +107,41 @@
 
         /* FIX STILE POPUP LEAFLET (Per testo scuro su sfondo bianco del popup standard) */
         .leaflet-popup-content { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 14px 16px; }
+        /* ===== AGGIUNTA PER IL SUPPORTO SMARTPHONE ===== */
+        @media screen and (max-width: 768px) {
+            /* Adatta le modali per non farle uscire dallo schermo */
+            .finestra-modal, .modale-largo { 
+                width: 90% !important; 
+                padding: 15px; 
+                box-sizing: border-box; 
+            }
+            
+            /* Sistema i bottoni in alto a sinistra */
+            #pannello-auth { 
+                top: 10px; left: 10px; right: 50px; 
+            }
+            #btn-auth, .btn-coordinatore { 
+                font-size: 12px; padding: 10px; width: 100%; 
+            }
+            
+            /* Rimpicciolisce il pannello monitoraggio e lo sposta in basso a sinistra */
+            #pannello-monitoraggio {
+                top: auto; bottom: 20px; left: 10px;
+                padding: 10px; min-width: 180px; width: auto;
+            }
+            #pannello-monitoraggio h3 { font-size: 13px; margin-bottom: 8px; }
+            .voce-legenda { font-size: 11px; margin-bottom: 8px; }
+            .pallino { width: 10px; height: 10px; }
+
+            /* Nasconde il pannello di rischio che su telefono coprirebbe troppa mappa */
+            #pannello-rischio { display: none; }
+            
+            /* Mette i campi delle coordinate uno sotto l'altro per comodità di tocco */
+            .riga-coordinate { flex-direction: column; gap: 6px; }
+            
+            /* Adatta la larghezza del fumetto sulla mappa */
+            .leaflet-popup-content { width: 230px !important; margin: 12px; }
+        }
     </style>
 </head>
 <body>
